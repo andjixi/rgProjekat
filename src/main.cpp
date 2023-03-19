@@ -217,12 +217,12 @@ int main() {
     stbi_set_flip_vertically_on_load(false);
     vector<std::string> faces
     {
-            FileSystem::getPath("resources/textures/skybox/right.jpg"),
-            FileSystem::getPath("resources/textures/skybox/left.jpg"),
-            FileSystem::getPath("resources/textures/skybox/top.jpg"),
-            FileSystem::getPath("resources/textures/skybox/bottom.jpg"),
-            FileSystem::getPath("resources/textures/skybox/front.jpg"),
-            FileSystem::getPath("resources/textures/skybox/back.jpg")
+            FileSystem::getPath("resources/textures/container.jpg"),
+            FileSystem::getPath("resources/textures/container.jpg"),
+            FileSystem::getPath("resources/textures/container.jpg"),
+            FileSystem::getPath("resources/textures/container.jpg"),
+            FileSystem::getPath("resources/textures/container.jpg"),
+            FileSystem::getPath("resources/textures/container.jpg"),
     };
     unsigned int cubemapTexture = loadCubemap(faces);
 
@@ -238,7 +238,7 @@ int main() {
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(4.0f, 4.0, 0.0);
-    pointLight.ambient = glm::vec3(0.1, 0.1, 0.1);
+    pointLight.ambient = glm::vec3(1);
     pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
     pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
 
@@ -272,7 +272,7 @@ int main() {
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-        pointLight.position = glm::vec3(4.0 * cos(currentFrame), 4.0f, 4.0 * sin(currentFrame));
+        pointLight.position = glm::vec3(4.0 , 4.0f, 4.0 );
         ourShader.setVec3("pointLight.position", pointLight.position);
         ourShader.setVec3("pointLight.ambient", pointLight.ambient);
         ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
@@ -299,9 +299,13 @@ int main() {
         //ourModel.Draw(ourShader);
 
         // draw skybox as last
+        glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
-        view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
+        //view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
+        model = glm::mat4 (1);
+        model = glm::scale(model, glm::vec3(10, 3, 10));
+        skyboxShader.setMat4("model", model);
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
         // skybox cube
@@ -311,7 +315,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
-
+        glDepthMask(GL_TRUE);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
