@@ -217,12 +217,13 @@ int main() {
     stbi_set_flip_vertically_on_load(false);
     vector<std::string> faces
     {
-            FileSystem::getPath("resources/textures/container.jpg"),
-            FileSystem::getPath("resources/textures/container.jpg"),
-            FileSystem::getPath("resources/textures/container.jpg"),
-            FileSystem::getPath("resources/textures/container.jpg"),
-            FileSystem::getPath("resources/textures/container.jpg"),
-            FileSystem::getPath("resources/textures/container.jpg"),
+            //726x726
+            FileSystem::getPath("resources/textures/wall.jpg"),
+            FileSystem::getPath("resources/textures/wall.jpg"),
+            FileSystem::getPath("resources/textures/ceiling.png"),
+            FileSystem::getPath("resources/textures/fluor.jpg"),
+            FileSystem::getPath("resources/textures/wall.jpg"),
+            FileSystem::getPath("resources/textures/wall.jpg")
     };
     unsigned int cubemapTexture = loadCubemap(faces);
 
@@ -245,8 +246,6 @@ int main() {
     pointLight.constant = 1.0f;
     pointLight.linear = 0.09f;
     pointLight.quadratic = 0.032f;
-
-
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -299,6 +298,7 @@ int main() {
         //ourModel.Draw(ourShader);
 
         // draw skybox as last
+        //TODO: check why DepthMask messes up the outside of the cube
         glDepthMask(GL_FALSE);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
@@ -461,11 +461,12 @@ unsigned int loadCubemap(vector<std::string> faces)
             stbi_image_free(data);
         }
     }
+
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_REPEAT);
 
     return textureID;
 }
