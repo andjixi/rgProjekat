@@ -75,7 +75,11 @@ void ProgramState::SaveToFile(std::string filename) {
         << camera.Position.z << '\n'
         << camera.Front.x << '\n'
         << camera.Front.y << '\n'
-        << camera.Front.z << '\n';
+        << camera.Front.z << '\n'
+        << backpackPosition.x << '\n'
+        << backpackPosition.y << '\n'
+        << backpackPosition.z << '\n'
+        << backpackScale << '\n';
 }
 
 void ProgramState::LoadFromFile(std::string filename) {
@@ -90,7 +94,11 @@ void ProgramState::LoadFromFile(std::string filename) {
            >> camera.Position.z
            >> camera.Front.x
            >> camera.Front.y
-           >> camera.Front.z;
+           >> camera.Front.z
+           >> backpackPosition.x
+           >> backpackPosition.y
+           >> backpackPosition.z
+           >> backpackScale;
     }
 }
 
@@ -234,7 +242,7 @@ int main() {
 
     // load models
     // -----------
-    Model ourModel("resources/objects/backpack/backpack.obj");
+    Model ourModel("resources/objects/bed/bed.obj");
     ourModel.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
@@ -295,7 +303,7 @@ int main() {
                                programState->backpackPosition); // translate it down so it's at the center of the scene
         model = glm::scale(model, glm::vec3(programState->backpackScale));    // it's a bit too big for our scene, so scale it down
         ourShader.setMat4("model", model);
-        //ourModel.Draw(ourShader);
+        ourModel.Draw(ourShader);
 
         // draw skybox as last
         //TODO: check why DepthMask messes up the outside of the cube
