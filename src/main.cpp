@@ -17,14 +17,11 @@
 #include <iostream>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
-
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
-
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
-
 void processInput(GLFWwindow *window);
-
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
+unsigned int loadTexture(char const * path);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
@@ -170,67 +167,129 @@ int main() {
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
+    Shader textureShader("resources/shaders/texture.vs", "resources/shaders/texture.fs");
 
-    float vertices[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+    float vertices1[] = {
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    };
+    float vertices2[] = {
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+    };
+    float vertices3[] = {
 
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, 0.5f, -0.5f, 1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 1.0f,
+            -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+    };
+    float vertices4[] = {
 
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, 0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 1.0f,
+            0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
+    };
+    float vertices5[] = {
 
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
-
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
-
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+    };
+    float vertices6[] = {
+            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f,
     };
 
     // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO;
-    glGenVertexArrays(1, &cubeVAO);
+    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6;
+    glGenVertexArrays(1, &cubeVAO1);
     glGenBuffers(1, &VBO);
-
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindVertexArray(cubeVAO);
-
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAO1);
     // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     // normal attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glGenVertexArrays(1, &cubeVAO2);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAO2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glGenVertexArrays(1, &cubeVAO3);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices3), vertices3, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAO3);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glGenVertexArrays(1, &cubeVAO4);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices4), vertices4, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAO4);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glGenVertexArrays(1, &cubeVAO5);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices5), vertices5, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAO5);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glGenVertexArrays(1, &cubeVAO6);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices6), vertices6, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAO6);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    //loading textures
+    unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/floor/weathered_planks_diff_4k.jpg").c_str());
+    unsigned int ceiling = loadTexture(FileSystem::getPath("resources/textures/ceiling/white_bricks_diff_4k.jpg").c_str());
+    unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wallRock/rock_wall_05_diff_4k.jpg").c_str());
+
 
     // load models
     // -----------
@@ -303,9 +362,34 @@ int main() {
         model = glm::scale(model, glm::vec3(7, 3, 7));
         ourShader.setMat4("model", model);
 
-        // render room (cube)
-        glBindVertexArray(cubeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //draw room
+        textureShader.use();
+        textureShader.setMat4("projection", projection);
+        textureShader.setMat4("view", view);
+        textureShader.setMat4("model", model);
+        glBindVertexArray(cubeVAO1);
+        glBindTexture(GL_TEXTURE_2D, ceiling);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(cubeVAO2);
+        glBindTexture(GL_TEXTURE_2D, ceiling);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(cubeVAO3);
+        glBindTexture(GL_TEXTURE_2D, ceiling);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(cubeVAO4);
+        glBindTexture(GL_TEXTURE_2D, ceiling);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(cubeVAO5);
+        glBindTexture(GL_TEXTURE_2D, floor);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(cubeVAO6);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
@@ -324,7 +408,12 @@ int main() {
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     // de-allocation
-    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteVertexArrays(1, &cubeVAO1);
+    glDeleteVertexArrays(1, &cubeVAO2);
+    glDeleteVertexArrays(1, &cubeVAO3);
+    glDeleteVertexArrays(1, &cubeVAO4);
+    glDeleteVertexArrays(1, &cubeVAO5);
+    glDeleteVertexArrays(1, &cubeVAO6);
     glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
@@ -345,6 +434,10 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        programState->camera.ProcessKeyboard(UP, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+        programState->camera.ProcessKeyboard(DOWN, deltaTime);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -385,7 +478,6 @@ void DrawImGui(ProgramState *programState) {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-
     {
         static float f = 0.0f;
         ImGui::Begin("Hello window");
@@ -425,4 +517,38 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
+}
+
+unsigned int loadTexture(char const * path) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+
+    int width, height, nrComponents;
+    unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+    if (data) {
+        GLenum format;
+        if (nrComponents == 1)
+            format = GL_RED;
+        else if (nrComponents == 3)
+            format = GL_RGB;
+        else if (nrComponents == 4)
+            format = GL_RGBA;
+
+        glBindTexture(GL_TEXTURE_2D, textureID);
+        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+        glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        stbi_image_free(data);
+    }
+    else {
+        std::cout << "Texture failed to load at path: " << path << std::endl;
+        stbi_image_free(data);
+    }
+
+    return textureID;
 }
