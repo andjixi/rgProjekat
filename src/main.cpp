@@ -277,9 +277,46 @@ int main() {
             -1.0f, 0.0f, -1.0f,  0.0f, 1.0f,
             1.0f, 0.0f, -1.0f,  1.0f, 1.0f
     };
+    float roofVertices[] = {
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.5f, 1.0f,
 
-    // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6, cubeVAOP1, cubeVAOP2, cubeVAOP3;
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.5f, 1.0f,
+
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.5f, 1.0f,
+
+            0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.5f, 1.0f,
+
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
+            0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.5f, 1.0f,
+
+            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
+            0.0f, 0.5f, 0.0f, 0.5f, 1.0f
+    };
+
+    //roof vao
+    unsigned int roofVBO, roofVAO;
+    glGenVertexArrays(1, &roofVAO);
+    glGenBuffers(1, &roofVBO);
+    glBindBuffer(GL_ARRAY_BUFFER, roofVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(roofVertices), roofVertices, GL_STATIC_DRAW);
+    glBindVertexArray(roofVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    // cube's VAO (and VBO)
+    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5,  cubeVAOP1, cubeVAOP2, cubeVAOP3;
     glGenVertexArrays(1, &cubeVAO1);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -332,15 +369,6 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    glGenVertexArrays(1, &cubeVAO6);
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices6), vertices6, GL_STATIC_DRAW);
-    glBindVertexArray(cubeVAO6);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
 
     //pomocni zidovi
     glGenVertexArrays(1, &cubeVAOP1);
@@ -403,7 +431,8 @@ int main() {
     //loading textures
     unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/floor/laminate_floor_02_diff_4k.jpg").c_str());
     unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wall/wood_plank_wall_diff_4k.jpg").c_str());
-    unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/aerial_grass_rock_diff_4k.jpg").c_str());
+    unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/forrest_ground_01_diff_4k.jpg").c_str());
+    unsigned int roof = loadTexture(FileSystem::getPath("resources/textures/roof/brown_planks_08_diff_4k.jpg").c_str());
     vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right.png"),
             FileSystem::getPath("resources/textures/skybox/left.png"),
@@ -413,7 +442,6 @@ int main() {
             FileSystem::getPath("resources/textures/skybox/back.png")
     };
     unsigned int cubemapTexture = loadCubemap(faces);
-
 
     // load models
     // -----------
@@ -434,6 +462,12 @@ int main() {
 
     Model rug("resources/objects/rug/rug.obj");
     rug.SetShaderTextureNamePrefix("material.");
+
+    Model door("resources/objects/door/door2.obj");
+    door.SetShaderTextureNamePrefix("material.");
+
+    Model frame("resources/objects/frame/dog2obj.obj");
+    frame.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(0.5, -0.5, 0.5);
@@ -533,6 +567,24 @@ int main() {
         ourShader.setMat4("model", model);
         tableSet.Draw(ourShader);
 
+        //render door
+//        model = glm::mat4(1.0f);
+//        model = glm::translate(model,
+//                               glm::vec3(programState->position));
+//        model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
+//        model = glm::scale(model, glm::vec3(programState->scale));
+//        ourShader.setMat4("model", model);
+//        door.Draw(ourShader);
+
+        //render frame
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,
+                               glm::vec3(-3.68f, 1.2f, -1.8f));
+        model = glm::rotate(model, glm::radians(-17.0f), glm::vec3(0, 0, 1));
+        model = glm::scale(model, glm::vec3(1.2f));
+        ourShader.setMat4("model", model);
+        frame.Draw(ourShader);
+
         //render vase
         model = glm::mat4(1.0f);
         model = glm::translate(model,
@@ -572,13 +624,9 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, floor);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        glBindVertexArray(cubeVAO6);
-        glBindTexture(GL_TEXTURE_2D, wall);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
         //pomocni kuhinjski
         model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(-1.51f, 1.5f, 1.73f));
+        model = glm::translate(model, glm::vec3(-1.51f, 1.48f, 1.76f));
         model = glm::scale(model, glm::vec3(7, 3, 3.5));
         ourShader.setMat4("model", model);
         textureShader.use();
@@ -628,13 +676,26 @@ int main() {
         view = programState->camera.GetViewMatrix();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.001f, 0.0f));
-        model = glm::scale(model, glm::vec3(50.0f, 1.0f, 50.0f));
+        model = glm::scale(model, glm::vec3(100.0f, 1.0f, 100.0f));
         textureShader.setMat4("projection", projection);
         textureShader.setMat4("view", view);
         glBindVertexArray(platformVAO);
         glBindTexture(GL_TEXTURE_2D, grass);
         textureShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        //roof
+        model = glm::mat4(1);
+        model = glm::translate(model, glm::vec3(0.0f, 6.2f, 0.1f));
+        model = glm::scale(model, glm::vec3(8.05));
+        ourShader.setMat4("model", model);
+        textureShader.use();
+        textureShader.setMat4("projection", projection);
+        textureShader.setMat4("view", view);
+        textureShader.setMat4("model", model);
+        glBindVertexArray(roofVAO);
+        glBindTexture(GL_TEXTURE_2D, roof);
+        glDrawArrays(GL_TRIANGLES, 0, 12);
 
 
         if (programState->ImGuiEnabled)
@@ -659,8 +720,12 @@ int main() {
     glDeleteVertexArrays(1, &cubeVAO3);
     glDeleteVertexArrays(1, &cubeVAO4);
     glDeleteVertexArrays(1, &cubeVAO5);
-    glDeleteVertexArrays(1, &cubeVAO6);
+    glDeleteVertexArrays(1, &cubeVAOP1);
+    glDeleteVertexArrays(1, &cubeVAOP2);
+    glDeleteVertexArrays(1, &cubeVAOP3);
+    glDeleteVertexArrays(1, &roofVAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &roofVBO);
 
     glDeleteVertexArrays(1, &skyboxVAO);
     glDeleteBuffers(1, &skyboxVAO);
@@ -734,7 +799,7 @@ void DrawImGui(ProgramState *programState) {
         ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
         ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
         ImGui::DragFloat3("position", (float*)&programState->position);
-        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.1, 4.0);
+        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.1, 50.0);
 
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
