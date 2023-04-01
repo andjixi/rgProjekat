@@ -1,0 +1,130 @@
+# Blender MTL File: 'KUCHNIA2.blend'
+# Material Count: 12
+newmtl Material.001
+Ns 45.098039
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 1.000000 1.000000 1.000000
+Ni 1.000000
+d 1.000000
+illum 2
+
+
+newmtl Material.001_kuchenka_tekstura.png
+Ns 45.098039
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 1.000000 1.000000 1.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd kuchenka_tekstura.png
+
+
+newmtl Material.003_untitled
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.417778 0.250532 0.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd deska_do_krojenia_tekstura.png
+
+
+newmtl Material.004_untitled.003
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.637602 0.490728
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd blat_tekstura.png
+
+
+newmtl Material.005_untitled.003
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.591114 0.398339
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd blat_tekstura.png
+
+
+newmtl Material.007_kuchenka_tekstura.png
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd kuchenka_tekstura.png
+
+
+newmtl Material.008_tapeta-winylowa-imitacja-kafelki-do-kuchni-lub-lazienki-delft-i
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.706667 0.706667 0.706667
+Ks 1.000000 1.000000 1.000000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd tapeta-winylowa-imitacja-kafelki-do-kuchni-lub-lazienki-delft-ii-nr-6492-32-tapety-as-creation_0_b.jpg
+
+
+newmtl Material_tapeta-winylowa-imitacja-kafelki-do-kuchni-lub-lazienki-delft-i
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd tapeta-winylowa-imitacja-kafelki-do-kuchni-lub-lazienki-delft-ii-nr-6492-32-tapety-as-creation_0_b.jpg
+
+
+newmtl Material_untitled
+Ns 96.078431
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd deska_do_krojenia_tekstura.png
+
+
+newmtl _11491458.jpg
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd 11491458.jpg
+
+
+newmtl _untitled
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd deska_do_krojenia_tekstura.png
+
+
+newmtl _untitled.001
+Ns 0
+Ka 0.000000 0.000000 0.000000
+Kd 0.8 0.8 0.8
+Ks 0.8 0.8 0.8
+d 1
+illum 2
+map_Kd SZAFKI_DOLNE_tekstura.png
+
+

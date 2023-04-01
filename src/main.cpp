@@ -129,7 +129,7 @@ int main() {
 
     // glfw window creation
     // --------------------
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "horrorRoom", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "cabin", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -279,7 +279,7 @@ int main() {
     };
 
     // first, configure the cube's VAO (and VBO)
-    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6;
+    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6, cubeVAOP1, cubeVAOP2, cubeVAOP3;
     glGenVertexArrays(1, &cubeVAO1);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -342,6 +342,40 @@ int main() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    //pomocni zidovi
+    glGenVertexArrays(1, &cubeVAOP1);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices2), vertices2, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAOP1);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glGenVertexArrays(1, &cubeVAOP2);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices3), vertices3, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAOP2);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    //kuhinjski
+    glGenVertexArrays(1, &cubeVAOP3);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices4), vertices4, GL_STATIC_DRAW);
+    glBindVertexArray(cubeVAOP3);
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // normal attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
     //skybox
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
@@ -387,8 +421,17 @@ int main() {
     Model bed("resources/objects/bed/bed.obj");
     bed.SetShaderTextureNamePrefix("material.");
 
-    Model chair("resources/objects/chair/chair2.obj");
-    chair.SetShaderTextureNamePrefix("material.");
+//    Model tableset("resources/objects/tableSet/LISABO_by_IKEA__corona.obj");
+//    tableset.SetShaderTextureNamePrefix("material.");
+
+    Model kitchen("resources/objects/kitchen/kitchen.obj");
+    kitchen.SetShaderTextureNamePrefix("material.");
+
+    Model wardrobe("resources/objects/wardrobe/orman.obj");
+    wardrobe.SetShaderTextureNamePrefix("material.");
+
+    Model tableSet("resources/objects/tableSet/table.obj");
+    tableSet.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(0.5, -0.5, 0.5);
@@ -449,19 +492,35 @@ int main() {
         // render bed model
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,
-                               glm::vec3(1.0f, 0.0f, -1.0f));
-        model = glm::scale(model, glm::vec3(0.8));
+                               glm::vec3(0.0f, 0.0f, -1.0f));
+        model = glm::scale(model, glm::vec3(0.9f));
         ourShader.setMat4("model", model);
         bed.Draw(ourShader);
 
-        //render chair model
+        //render wardrobe model
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,glm::vec3(
+                               3.0f, 0.01f, -2.27f));
+        model = glm::scale(model, glm::vec3(1.3f));
+        ourShader.setMat4("model", model);
+        wardrobe.Draw(ourShader);
+
+        //render kitchen
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,
+                               glm::vec3(-2.2f, 0.46f, 3.0f));
+        model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
+        model = glm::scale(model, glm::vec3(0.45f));
+        ourShader.setMat4("model", model);
+        kitchen.Draw(ourShader);
+
+        //render tableSet
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(programState->position));
-        model = glm::scale(model, glm::vec3(2.0f));
+        model = glm::scale(model, glm::vec3(programState->scale));
         ourShader.setMat4("model", model);
-        chair.Draw(ourShader);
-
+        tableSet.Draw(ourShader);
 
         //room scaling
         model = glm::mat4(1);
@@ -496,6 +555,38 @@ int main() {
 
         glBindVertexArray(cubeVAO6);
         glBindTexture(GL_TEXTURE_2D, ceiling);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        //pomocni kuhinjski
+        model = glm::mat4(1);
+        model = glm::translate(model, glm::vec3(-1.51f, 1.5f, 1.73f));
+        model = glm::scale(model, glm::vec3(7, 3, 3.5));
+        ourShader.setMat4("model", model);
+        textureShader.use();
+        textureShader.setMat4("projection", projection);
+        textureShader.setMat4("view", view);
+        textureShader.setMat4("model", model);
+
+        glBindVertexArray(cubeVAOP3);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        //pomocni zidovi
+        model = glm::mat4(1);
+        model = glm::translate(model, glm::vec3(-0.1f, 1.5f, 0.02f));
+        model = glm::scale(model, glm::vec3(7, 3, 7));
+        ourShader.setMat4("model", model);
+        textureShader.use();
+        textureShader.setMat4("projection", projection);
+        textureShader.setMat4("view", view);
+        textureShader.setMat4("model", model);
+
+        glBindVertexArray(cubeVAOP1);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+
+        glBindVertexArray(cubeVAOP2);
+        glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         // draw skybox as last
