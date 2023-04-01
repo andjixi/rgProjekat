@@ -401,9 +401,8 @@ int main() {
     stbi_set_flip_vertically_on_load(false);
 
     //loading textures
-    unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/weatheredFloor/weathered_brown_planks_diff_4k.jpg").c_str());
-    unsigned int ceiling = loadTexture(FileSystem::getPath("resources/textures/oldPlanks/wood_plank_wall_diff_4k.jpg").c_str());
-    unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/floor2/wood_cabinet_worn_long_diff_4k.jpg").c_str());
+    unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/floor/laminate_floor_02_diff_4k.jpg").c_str());
+    unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wall/wood_plank_wall_diff_4k.jpg").c_str());
     unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/aerial_grass_rock_diff_4k.jpg").c_str());
     vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right.png"),
@@ -421,9 +420,6 @@ int main() {
     Model bed("resources/objects/bed/bed.obj");
     bed.SetShaderTextureNamePrefix("material.");
 
-//    Model tableset("resources/objects/tableSet/LISABO_by_IKEA__corona.obj");
-//    tableset.SetShaderTextureNamePrefix("material.");
-
     Model kitchen("resources/objects/kitchen/kitchen.obj");
     kitchen.SetShaderTextureNamePrefix("material.");
 
@@ -432,6 +428,12 @@ int main() {
 
     Model tableSet("resources/objects/tableSet/untitled.obj");
     tableSet.SetShaderTextureNamePrefix("material.");
+
+    Model vase("resources/objects/flower/Scaniverse.obj");
+    vase.SetShaderTextureNamePrefix("material.");
+
+    Model rug("resources/objects/rug/rug.obj");
+    rug.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(0.5, -0.5, 0.5);
@@ -500,7 +502,7 @@ int main() {
         //render wardrobe model
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(
-                               3.0f, 0.01f, -2.27f));
+                               3.0f, 0.0f, -2.27f));
         model = glm::scale(model, glm::vec3(1.3f));
         ourShader.setMat4("model", model);
         wardrobe.Draw(ourShader);
@@ -514,6 +516,14 @@ int main() {
         ourShader.setMat4("model", model);
         kitchen.Draw(ourShader);
 
+        //render rug
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,
+                               glm::vec3(-0.8f, 0.0f, 1.0f));
+        model = glm::scale(model, glm::vec3(1.2f));
+        ourShader.setMat4("model", model);
+        rug.Draw(ourShader);
+
         //render tableSet
         model = glm::mat4(1.0f);
         model = glm::translate(model,
@@ -522,6 +532,14 @@ int main() {
         model = glm::scale(model, glm::vec3(0.011));
         ourShader.setMat4("model", model);
         tableSet.Draw(ourShader);
+
+        //render vase
+        model = glm::mat4(1.0f);
+        model = glm::translate(model,
+                               glm::vec3(-2.45f, 0.8f, -1.75f));
+        model = glm::scale(model, glm::vec3(1.3f));
+        ourShader.setMat4("model", model);
+        vase.Draw(ourShader);
 
         //room scaling
         model = glm::mat4(1);
@@ -555,7 +573,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glBindVertexArray(cubeVAO6);
-        glBindTexture(GL_TEXTURE_2D, ceiling);
+        glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         //pomocni kuhinjski
