@@ -171,6 +171,11 @@ int main() {
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
+    // enable face culling
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glFrontFace(GL_CW);
+
     // build and compile shaders
     // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
@@ -462,9 +467,9 @@ int main() {
 
     Model rug("resources/objects/rug/rug.obj");
     rug.SetShaderTextureNamePrefix("material.");
-
-    Model door("resources/objects/door/door2.obj");
-    door.SetShaderTextureNamePrefix("material.");
+//
+//    Model door("resources/objects/door/door2.obj");
+//    door.SetShaderTextureNamePrefix("material.");
 
     Model frame("resources/objects/frame/dog2obj.obj");
     frame.SetShaderTextureNamePrefix("material.");
@@ -518,6 +523,8 @@ int main() {
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
+
+        glDisable(GL_CULL_FACE);
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
@@ -620,6 +627,11 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+        model = glm::mat4(1);
+        model = glm::translate(model, glm::vec3(0, 1.5, 0));
+        model = glm::scale(model, glm::vec3(7, 3, 7));
+        ourShader.setMat4("model", model);
+
         glBindVertexArray(cubeVAO5);
         glBindTexture(GL_TEXTURE_2D, floor);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -656,7 +668,10 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        // draw skybox as last
+        glEnable(GL_CULL_FACE);
+
+        // draw skybox
+        glCullFace(GL_FRONT);
         glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
         skyboxShader.use();
         view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
@@ -671,6 +686,7 @@ int main() {
         glDepthFunc(GL_LESS); // set depth function back to default
 
         //platform
+        glCullFace(GL_BACK);
         textureShader.use();
         projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
         view = programState->camera.GetViewMatrix();
@@ -685,6 +701,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
         //roof
+        glDisable(GL_CULL_FACE);
         model = glm::mat4(1);
         model = glm::translate(model, glm::vec3(0.0f, 6.2f, 0.1f));
         model = glm::scale(model, glm::vec3(8.05));
@@ -696,7 +713,7 @@ int main() {
         glBindVertexArray(roofVAO);
         glBindTexture(GL_TEXTURE_2D, roof);
         glDrawArrays(GL_TRIANGLES, 0, 12);
-
+        glEnable(GL_CULL_FACE);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
