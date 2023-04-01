@@ -430,7 +430,7 @@ int main() {
     Model wardrobe("resources/objects/wardrobe/orman.obj");
     wardrobe.SetShaderTextureNamePrefix("material.");
 
-    Model tableSet("resources/objects/tableSet/table.obj");
+    Model tableSet("resources/objects/tableSet/untitled.obj");
     tableSet.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
@@ -517,8 +517,9 @@ int main() {
         //render tableSet
         model = glm::mat4(1.0f);
         model = glm::translate(model,
-                               glm::vec3(programState->position));
-        model = glm::scale(model, glm::vec3(programState->scale));
+                               glm::vec3(-2.4f, 0.0f, -1.8f));
+        model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
+        model = glm::scale(model, glm::vec3(0.011));
         ourShader.setMat4("model", model);
         tableSet.Draw(ourShader);
 
