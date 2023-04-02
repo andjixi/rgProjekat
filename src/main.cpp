@@ -477,12 +477,12 @@ int main() {
     };
     unsigned int cubemapTexture = loadCubemap(faces);
 
-    //random generationg positions for trees
+    //random generating positions for trees
     vector<glm::vec3> vegetation;
     for (int i = 0; i < 10; i++) {
-        int rand_x = rand() % 46 ;
-        int rand_z = rand() % 46 ;
-        glm::vec3 pos = glm::vec3(rand_x, 0.5f, rand_z);
+        int rand_x = rand() % 40;
+        int rand_z = rand() % 40;
+        glm::vec3 pos = glm::vec3(rand_x, 0.0f, rand_z);
         vegetation.push_back(pos);
     }
 
@@ -757,7 +757,7 @@ int main() {
         view = programState->camera.GetViewMatrix();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.001f, 0.0f));
-        model = glm::scale(model, glm::vec3(100.0f, 1.0f, 100.0f));
+        model = glm::scale(model, glm::vec3(50.0f, 1.0f, 50.0f));
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         glBindVertexArray(platformVAO);
