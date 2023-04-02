@@ -466,16 +466,25 @@ int main() {
     unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/floor/laminate_floor_02_diff_4k.jpg").c_str());
     unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wall/wood_plank_wall_diff_4k.jpg").c_str());
     unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/forrest_ground_01_diff_4k.jpg").c_str());
-    unsigned int roof = loadTexture(FileSystem::getPath("resources/textures/roof/brown_planks_08_diff_4k.jpg").c_str());
+    unsigned int roof = loadTexture(FileSystem::getPath("resources/textures/roof/thatch_roof_angled_diff_4k.jpg").c_str());
     vector<std::string> faces {
-            FileSystem::getPath("resources/textures/skybox/right.png"),
-            FileSystem::getPath("resources/textures/skybox/left.png"),
-            FileSystem::getPath("resources/textures/skybox/top.png"),
-            FileSystem::getPath("resources/textures/skybox/bottom.png"),
-            FileSystem::getPath("resources/textures/skybox/front.png"),
-            FileSystem::getPath("resources/textures/skybox/back.png")
+            FileSystem::getPath("resources/textures/skybox/right.jpg"),
+            FileSystem::getPath("resources/textures/skybox/left.jpg"),
+            FileSystem::getPath("resources/textures/skybox/top.jpg"),
+            FileSystem::getPath("resources/textures/skybox/bottom.jpg"),
+            FileSystem::getPath("resources/textures/skybox/front.jpg"),
+            FileSystem::getPath("resources/textures/skybox/back.jpg")
     };
     unsigned int cubemapTexture = loadCubemap(faces);
+
+    //random generationg positions for trees
+    vector<glm::vec3> vegetation;
+    for (int i = 0; i < 10; i++) {
+        int rand_x = rand() % 46 ;
+        int rand_z = rand() % 46 ;
+        glm::vec3 pos = glm::vec3(rand_x, 0.5f, rand_z);
+        vegetation.push_back(pos);
+    }
 
     // load models
     // -----------
@@ -508,6 +517,9 @@ int main() {
 
     Model lamp2("resources/objects/lamp/Asta LG1.obj");
     lamp2.SetShaderTextureNamePrefix("material.");
+
+    Model tree("resources/objects/tree/Tree1.obj");
+    tree.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
     pointLight.position = glm::vec3(0.5, -0.5, 0.5);
@@ -766,6 +778,17 @@ int main() {
         glBindTexture(GL_TEXTURE_2D, roof);
         glDrawArrays(GL_TRIANGLES, 0, 12);
         glEnable(GL_CULL_FACE);
+
+        //rand trees
+        model = glm::scale(model, glm::vec3(1.0f));
+        ourShader.setMat4("model", model);
+        for (auto i : vegetation)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, i);
+            ourShader.setMat4("model", model);
+            tree.Draw(ourShader);
+        }
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
