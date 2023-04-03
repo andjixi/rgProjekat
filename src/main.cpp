@@ -49,6 +49,14 @@ struct PointLight {
     float quadratic;
 };
 
+struct DirLight {
+    glm::vec3 direction;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
+
 struct ProgramState {
     glm::vec3 clearColor = glm::vec3(0);
     bool ImGuiEnabled = false;
@@ -60,6 +68,8 @@ struct ProgramState {
     float scale = 1.0f;
 
     PointLight pointLight;
+    DirLight dirLight;
+
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
 
@@ -479,9 +489,9 @@ int main() {
 
     //random generating positions for trees
     vector<glm::vec3> vegetation;
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 20; i++) {
         int rand_x = rand() % 40;
-        int rand_z = rand() % 40;
+        int rand_z = rand() % 35;
         glm::vec3 pos = glm::vec3(rand_x, 0.0f, rand_z);
         vegetation.push_back(pos);
     }
@@ -518,7 +528,7 @@ int main() {
     Model lamp2("resources/objects/lamp/Asta LG1.obj");
     lamp2.SetShaderTextureNamePrefix("material.");
 
-    Model tree("resources/objects/tree/Tree1.obj");
+    Model tree("resources/objects/tree/tree2.obj");
     tree.SetShaderTextureNamePrefix("material.");
 
     PointLight& pointLight = programState->pointLight;
@@ -530,6 +540,12 @@ int main() {
 //    pointLight.constant = 1.0f;
 //    pointLight.linear = 0.09f;
 //    pointLight.quadratic = 0.032f;
+
+    DirLight& dirLight = programState->dirLight;
+    dirLight.direction = glm::vec3(1.9f, -1.4f, -2.15f);
+    dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
+    dirLight.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
+    dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
     // draw in wireframe
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -560,16 +576,25 @@ int main() {
         // don't forget to enable shader before setting uniforms
         ourShader.use();
         pointLight.position = glm::vec3(0 , 1.5, 0);
-        ourShader.setVec3("pointLight.position", pointLight.position);
-        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-        ourShader.setVec3("pointLight.specular", pointLight.specular);
+//        ourShader.setVec3("pointLight.position", pointLight.position);
+//        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
+//        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
+//        ourShader.setVec3("pointLight.specular", pointLight.specular);
         ourShader.setFloat("pointLight.constant", pointLight.constant);
         ourShader.setFloat("pointLight.linear", pointLight.linear);
         ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
+        // dirLight
+        ourShader.setVec3("dirLight.direction", dirLight.direction);
+        ourShader.setVec3("dirLight.ambient", dirLight.ambient);
+        ourShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        ourShader.setVec3("dirLight.specular", dirLight.specular);
+
+        ourShader.setVec3("pointLight.ambient", glm::vec3(0));
+        ourShader.setVec3("pointLight.diffuse", glm::vec3(0));
+        ourShader.setVec3("pointLight.specular", glm::vec3(0));
 
         glDisable(GL_CULL_FACE);
         // view/projection transformations
@@ -648,7 +673,7 @@ int main() {
         ourShader.setMat4("model", model);
         vase.Draw(ourShader);
 
-        //render lampS
+        //render lamps
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(-1.0f, 0.51f, -3.27f));
@@ -897,6 +922,12 @@ void DrawImGui(ProgramState *programState) {
         ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
         ImGui::DragFloat("pointLight.quadratic", &programState->pointLight.quadratic, 0.05, 0.0, 1.0);
+
+        ImGui::DragFloat3("dirLight.direction", (float*)&programState->dirLight.direction, 0.05);
+        ImGui::DragFloat3("dirLight.ambient", (float*)&programState->dirLight.ambient, 0.05, 0.0, 1.0);
+        ImGui::DragFloat3("dirLight.diffuse", (float*)&programState->dirLight.diffuse, 0.05, 0.0, 1.0);
+        ImGui::DragFloat3("dirLight.specular", (float*)&programState->dirLight.specular, 0.05, 0.0, 1.0);
+
         ImGui::End();
     }
 
