@@ -32,6 +32,8 @@ in vec3 Normal;
 in vec3 FragPos;
 
 uniform PointLight pointLight;
+uniform PointLight lampPointLight1;
+uniform PointLight lampPointLight2;
 uniform Material material;
 uniform DirLight dirLight;
 
@@ -58,7 +60,6 @@ vec3 CalcPointLight(PointLight light, vec3 normal, vec3 fragPos, vec3 viewDir)
     return (ambient + diffuse + specular);
 }
 
-
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
@@ -78,7 +79,8 @@ void main()
 {
     vec3 normal = normalize(Normal);
     vec3 viewDir = normalize(viewPosition - FragPos);
-    vec3 result = CalcPointLight(pointLight, normal, FragPos, viewDir)
-                    + CalcDirLight(dirLight, normal, viewDir);
+    vec3 result =     CalcDirLight(dirLight, normal, viewDir)
+                    + CalcPointLight(lampPointLight1, normal, FragPos, viewDir)
+                    + CalcPointLight(lampPointLight2, normal, FragPos, viewDir);
     FragColor = vec4(result, 1.0);
 }
