@@ -48,6 +48,21 @@ struct PointLight {
     float quadratic;
 };
 
+//struct SpotLight {
+//    glm::vec3 position;
+//    glm::vec3 direction;
+//    float cutOff;
+//    float outerCutOff;
+//
+//    float constant;
+//    float linear;
+//    float quadratic;
+//
+//    glm::vec3 ambient;
+//    glm::vec3 diffuse;
+//    glm::vec3 specular;
+//};
+
 struct DirLight {
     glm::vec3 direction;
 
@@ -70,6 +85,7 @@ struct ProgramState {
     PointLight lampPointLight1;
     PointLight lampPointLight2;
     DirLight dirLight;
+//    SpotLight lampSpotLight;
 
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
@@ -185,6 +201,8 @@ int main() {
     // build and compile shaders
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
+    Shader insideShader("resources/shaders/inside.vs", "resources/shaders/inside.fs");
+    Shader outsideShader("resources/shaders/outside.vs", "resources/shaders/outside.fs");
 
     //initializing vertices (first three coordinates, second three normals, and two for textures)
     float vertices1[] = {
@@ -530,7 +548,7 @@ int main() {
     dirLight.diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
-    //lamp lights
+    //table lamps lights
     PointLight& lampPointLight1 = programState->lampPointLight1;
     lampPointLight1.position = glm::vec3(0.984, 0.882, -3.268);
     lampPointLight1.ambient = glm::vec3(0.6f, 0.6f, 0.6f);
@@ -555,6 +573,12 @@ int main() {
     ourShader.use();
     ourShader.setInt("material.texture_diffuse1", 0);
     ourShader.setInt("material.texture_specular1", 1);
+    insideShader.use();
+    insideShader.setInt("material.texture_diffuse1", 0);
+    insideShader.setInt("material.texture_specular1", 1);
+    outsideShader.use();
+    outsideShader.setInt("material.texture_diffuse1", 0);
+    outsideShader.setInt("material.texture_specular1", 1);
 
     // render loop
     while (!glfwWindowShouldClose(window)) {
@@ -573,7 +597,7 @@ int main() {
         // don't forget to enable shader before setting uniforms
         ourShader.use();
 
-        //forwarding information to shaders
+        //forwarding information ourShaders
         ourShader.setVec3("lampPointLight1.position", lampPointLight1.position);
         ourShader.setVec3("lampPointLight1.ambient", lampPointLight1.ambient);
         ourShader.setVec3("lampPointLight1.diffuse", lampPointLight1.diffuse);
@@ -604,30 +628,67 @@ int main() {
         ourShader.setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
         ourShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
 
+        //forwarding information to insideShaders
+        insideShader.use();
+        insideShader.setVec3("lampPointLight1.position", lampPointLight1.position);
+        insideShader.setVec3("lampPointLight1.ambient", lampPointLight1.ambient);
+        insideShader.setVec3("lampPointLight1.diffuse", lampPointLight1.diffuse);
+        insideShader.setVec3("lampPointLight1.specular", lampPointLight1.specular);
+        insideShader.setFloat("lampPointLight1.constant", lampPointLight1.constant);
+        insideShader.setFloat("lampPointLight1.linear", lampPointLight1.linear);
+        insideShader.setFloat("lampPointLight1.quadratic", lampPointLight1.quadratic);
+        insideShader.setVec3("lampPointLight2.position", lampPointLight2.position);
+        insideShader.setVec3("lampPointLight2.ambient", lampPointLight2.ambient);
+        insideShader.setVec3("lampPointLight2.diffuse", lampPointLight2.diffuse);
+        insideShader.setVec3("lampPointLight2.specular", lampPointLight2.specular);
+        insideShader.setFloat("lampPointLight2.constant", lampPointLight2.constant);
+        insideShader.setFloat("lampPointLight2.linear", lampPointLight2.linear);
+        insideShader.setFloat("lampPointLight2.quadratic", lampPointLight2.quadratic);
+        insideShader.setVec3("viewPosition", programState->camera.Position);
+        insideShader.setFloat("material.shininess", 32.0f);
+
+//        ourShader.setVec3("spotLight1.position", 2.68f, 0.58f, 6.0f);
+//        ourShader.setVec3("spotLight1.direction", 0.0f, 0.0f, -1.0f);
+//        ourShader.setVec3("spotLight1.ambient", 0.0f, 0.0f, 0.0f);
+//        ourShader.setVec3("spotLight1.diffuse", 1.0f, 1.0f, 1.0f);
+//        ourShader.setVec3("spotLight1.specular", 1.0f, 1.0f, 1.0f);
+//        ourShader.setFloat("spotLight1.constant", 1.0f);
+//        ourShader.setFloat("spotLight1.linear", 0.09);
+//        ourShader.setFloat("spotLight1.quadratic", 0.032);
+//        ourShader.setFloat("spotLight1.cutOff", glm::cos(glm::radians(6.0f)));
+//        ourShader.setFloat("spotLight1.outerCutOff", glm::cos(glm::radians(8.0f)));
+
+        //forwarding information to outsideShaders
+        outsideShader.setVec3("dirLight.direction", 0.3f, -0.75f, -0.6f);
+        outsideShader.setVec3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
+        outsideShader.setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
+        outsideShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
+
         glDisable(GL_CULL_FACE);
 
         // view/projection transformations
+        insideShader.use();
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
         glm::mat4 view = programState->camera.GetViewMatrix();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
+        insideShader.setMat4("projection", projection);
+        insideShader.setMat4("view", view);
 
         // render bed
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(0.0f, 0.0f, -1.0f));
         model = glm::scale(model, glm::vec3(0.9f));
-        ourShader.setMat4("model", model);
-        bed.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        bed.Draw(insideShader);
 
         //render wardrobe
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(
                                3.0f, 0.0f, -2.27f));
         model = glm::scale(model, glm::vec3(1.3f));
-        ourShader.setMat4("model", model);
-        wardrobe.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        wardrobe.Draw(insideShader);
 
         //render kitchen
         model = glm::mat4(1.0f);
@@ -635,16 +696,16 @@ int main() {
                                glm::vec3(-2.2f, 0.46f, 3.0f));
         model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.45f));
-        ourShader.setMat4("model", model);
-        kitchen.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        kitchen.Draw(insideShader);
 
         //render rug
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(-0.8f, 0.0f, 1.0f));
         model = glm::scale(model, glm::vec3(1.2f));
-        ourShader.setMat4("model", model);
-        rug.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        rug.Draw(insideShader);
 
         //render tableSet
         model = glm::mat4(1.0f);
@@ -652,8 +713,8 @@ int main() {
                                glm::vec3(-2.4f, 0.0f, -1.8f));
         model = glm::rotate(model, glm::radians(45.0f), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.011));
-        ourShader.setMat4("model", model);
-        tableSet.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        tableSet.Draw(insideShader);
 
         //render door
         model = glm::mat4(1.0f);
@@ -662,8 +723,8 @@ int main() {
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 0, 1));
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(0, 1, 0));
         model = glm::scale(model, glm::vec3(0.009));
-        ourShader.setMat4("model", model);
-        door.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        door.Draw(insideShader);
 
         //render frame
         model = glm::mat4(1.0f);
@@ -671,31 +732,31 @@ int main() {
                                glm::vec3(-3.68f, 1.2f, -1.8f));
         model = glm::rotate(model, glm::radians(-17.0f), glm::vec3(0, 0, 1));
         model = glm::scale(model, glm::vec3(1.2f));
-        ourShader.setMat4("model", model);
-        frame.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        frame.Draw(insideShader);
 
         //render vase
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(-2.45f, 0.8f, -1.75f));
         model = glm::scale(model, glm::vec3(1.3f));
-        ourShader.setMat4("model", model);
-        vase.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        vase.Draw(insideShader);
 
         //render lamps
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(-1.0f, 0.51f, -3.27f));
         model = glm::scale(model, glm::vec3(1.0f));
-        ourShader.setMat4("model", model);
-        lamp.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        lamp.Draw(insideShader);
 
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(1.0f, 0.51f, -3.27f));
         model = glm::scale(model, glm::vec3(1.0f));
-        ourShader.setMat4("model", model);
-        lamp2.Draw(ourShader);
+        insideShader.setMat4("model", model);
+        lamp2.Draw(insideShader);
 
         //room scaling
         model = glm::mat4(1);
@@ -731,10 +792,10 @@ int main() {
         model = glm::mat4(1);
         model = glm::translate(model, glm::vec3(-1.51f, 1.48f, 1.76f));
         model = glm::scale(model, glm::vec3(7, 3, 3.5));
-        ourShader.use();
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", view);
-        ourShader.setMat4("model", model);
+        insideShader.use();
+        insideShader.setMat4("projection", projection);
+        insideShader.setMat4("view", view);
+        insideShader.setMat4("model", model);
         glBindVertexArray(cubeVAOP3);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
