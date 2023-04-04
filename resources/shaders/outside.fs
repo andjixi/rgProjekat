@@ -15,17 +15,20 @@ struct Material {
 
     float shininess;
 };
+
 in vec2 TexCoords;
 in vec3 Normal;
 in vec3 FragPos;
 
 uniform Material material;
 uniform DirLight dirLight;
+uniform vec3 viewPosition;
 
 vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
 {
     vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
+
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
 
