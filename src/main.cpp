@@ -552,18 +552,18 @@ int main() {
     //lamp lights
     PointLight& lampPointLight1 = programState->lampPointLight1;
     lampPointLight1.position = glm::vec3(0.984, 0.882, -3.268);
-    lampPointLight1.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    lampPointLight1.ambient = glm::vec3(0.6f, 0.6f, 0.6f);
     lampPointLight1.diffuse = glm::vec3(0.6, 0.6, 0.6);
-    lampPointLight1.specular = glm::vec3(0.8, 0.8, 0.8);
+    lampPointLight1.specular = glm::vec3(0.4, 0.4, 0.4);
     lampPointLight1.constant = 1.0f;
     lampPointLight1.linear = 1.0f;
     lampPointLight1.quadratic = 1.0f;
 
     PointLight& lampPointLight2 = programState->lampPointLight2;
     lampPointLight2.position = glm::vec3(-0.984, 0.882, -3.268);
-    lampPointLight2.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
+    lampPointLight2.ambient = glm::vec3(0.6f, 0.6f, 0.6f);
     lampPointLight2.diffuse = glm::vec3(0.6, 0.6, 0.6);
-    lampPointLight2.specular = glm::vec3(0.8, 0.8, 0.8);
+    lampPointLight2.specular = glm::vec3(0.4, 0.4, 0.4);
     lampPointLight2.constant = 1.0f;
     lampPointLight2.linear = 1.0f;
     lampPointLight2.quadratic = 1.0f;
