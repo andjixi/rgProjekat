@@ -48,20 +48,20 @@ struct PointLight {
     float quadratic;
 };
 
-//struct SpotLight {
-//    glm::vec3 position;
-//    glm::vec3 direction;
-//    float cutOff;
-//    float outerCutOff;
-//
-//    float constant;
-//    float linear;
-//    float quadratic;
-//
-//    glm::vec3 ambient;
-//    glm::vec3 diffuse;
-//    glm::vec3 specular;
-//};
+struct SpotLight {
+    glm::vec3 position;
+    glm::vec3 direction;
+    float cutOff;
+    float outerCutOff;
+
+    float constant;
+    float linear;
+    float quadratic;
+
+    glm::vec3 ambient;
+    glm::vec3 diffuse;
+    glm::vec3 specular;
+};
 
 struct DirLight {
     glm::vec3 direction;
@@ -85,7 +85,7 @@ struct ProgramState {
     PointLight lampPointLight1;
     PointLight lampPointLight2;
     DirLight dirLight;
-//    SpotLight lampSpotLight;
+    SpotLight lampSpotLight;
 
     ProgramState()
             : camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
@@ -567,6 +567,18 @@ int main() {
     lampPointLight2.linear = 1.0f;
     lampPointLight2.quadratic = 1.0f;
 
+    SpotLight& lampSpotLight = programState->lampSpotLight;
+    lampSpotLight.position = glm::vec3(-0.2f, 1.4f, 0.5f);
+    lampSpotLight.direction = glm::vec3(0.0f, -1.0f, 0.0f);
+    lampSpotLight.ambient = glm::vec3(0.6f, 0.6f, 0.6f);
+    lampSpotLight.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
+    lampSpotLight.specular = glm::vec3(0.4, 0.4, 0.4);
+    lampSpotLight.constant = 1.0f;
+    lampSpotLight.linear = 1.0f;
+    lampSpotLight.quadratic = 1.0f;
+    lampSpotLight.cutOff = 20.0f;
+    lampSpotLight.outerCutOff = 25.0f;
+
     //shader config
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -647,16 +659,16 @@ int main() {
         insideShader.setVec3("viewPosition", programState->camera.Position);
         insideShader.setFloat("material.shininess", 32.0f);
 
-//        ourShader.setVec3("spotLight1.position", 2.68f, 0.58f, 6.0f);
-//        ourShader.setVec3("spotLight1.direction", 0.0f, 0.0f, -1.0f);
-//        ourShader.setVec3("spotLight1.ambient", 0.0f, 0.0f, 0.0f);
-//        ourShader.setVec3("spotLight1.diffuse", 1.0f, 1.0f, 1.0f);
-//        ourShader.setVec3("spotLight1.specular", 1.0f, 1.0f, 1.0f);
-//        ourShader.setFloat("spotLight1.constant", 1.0f);
-//        ourShader.setFloat("spotLight1.linear", 0.09);
-//        ourShader.setFloat("spotLight1.quadratic", 0.032);
-//        ourShader.setFloat("spotLight1.cutOff", glm::cos(glm::radians(6.0f)));
-//        ourShader.setFloat("spotLight1.outerCutOff", glm::cos(glm::radians(8.0f)));
+        insideShader.setVec3("lampSpotLight.position", lampSpotLight.position);
+        insideShader.setVec3("lampSpotLight.direction", lampSpotLight.direction);
+        insideShader.setVec3("lampSpotLight.ambient", lampSpotLight.ambient);
+        insideShader.setVec3("lampSpotLight.diffuse", lampSpotLight.diffuse);
+        insideShader.setVec3("lampSpotLight.specular", lampSpotLight.specular);
+        insideShader.setFloat("lampSpotLight.constant", lampSpotLight.constant);
+        insideShader.setFloat("lampSpotLight.linear", lampSpotLight.linear);
+        insideShader.setFloat("lampSpotLight.quadratic", lampSpotLight.quadratic);
+        insideShader.setFloat("lampSpotLight.cutOff", glm::cos(glm::radians(lampSpotLight.cutOff)));
+        insideShader.setFloat("lampSpotLight.outerCutOff", glm::cos(glm::radians(lampSpotLight.outerCutOff)));
 
         //forwarding information to outsideShaders
         outsideShader.setVec3("dirLight.direction", 0.3f, -0.75f, -0.6f);
@@ -990,6 +1002,19 @@ void DrawImGui(ProgramState *programState) {
 //        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight2.constant, 0.05);
 //        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight2.linear, 0.05);
 //        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight2.quadratic, 0.05);
+
+        ImGui::DragFloat3("lampSpotLight.position", (float*)&programState->lampSpotLight.position);
+        ImGui::DragFloat3("lampSpotLight.ambient", (float*)&programState->lampSpotLight.ambient, 0.05);
+        ImGui::DragFloat3("lampSpotLight.diffuse", (float*)&programState->lampSpotLight.diffuse, 0.05);
+        ImGui::DragFloat3("lampSpotLight.specular", (float*)&programState->lampSpotLight.specular, 0.05);
+        ImGui::DragFloat3("lampSpotLight.direction", (float*)&programState->lampSpotLight.direction, 0.05);
+        ImGui::DragFloat("lampSpotLight.constant", &programState->lampSpotLight.constant, 0.05);
+        ImGui::DragFloat("lampSpotLight.linear", &programState->lampSpotLight.linear, 0.05);
+        ImGui::DragFloat("lampSpotLight.quadratic", &programState->lampSpotLight.quadratic, 0.05);
+        ImGui::DragFloat("lampSpotLight.cutOff", &programState->lampSpotLight.cutOff, 0.05);
+        ImGui::DragFloat("lampSpotLight.outerCutOff", &programState->lampSpotLight.outerCutOff, 0.05);
+
+
 
         ImGui::End();
     }
