@@ -29,7 +29,6 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -124,12 +123,10 @@ void ProgramState::LoadFromFile(std::string filename) {
 }
 
 ProgramState *programState;
-
 void DrawImGui(ProgramState *programState);
 
 int main() {
     // glfw: initialize and configure
-    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -140,7 +137,6 @@ int main() {
 #endif
 
     // glfw window creation
-    // --------------------
     GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "cabin", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -156,7 +152,6 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
-    // ---------------------------------------
     if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
@@ -180,7 +175,6 @@ int main() {
     ImGui_ImplOpenGL3_Init("#version 330 core");
 
     // configure global opengl state
-    // -----------------------------
     glEnable(GL_DEPTH_TEST);
 
     // enable face culling
@@ -189,11 +183,10 @@ int main() {
     glFrontFace(GL_CW);
 
     // build and compile shaders
-    // -------------------------
     Shader ourShader("resources/shaders/2.model_lighting.vs", "resources/shaders/2.model_lighting.fs");
-    Shader textureShader("resources/shaders/texture.vs", "resources/shaders/texture.fs");
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
 
+    //initializing vertices (first three coordinates, second three normals, and two for textures)
     float vertices1[] = {
             -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
             0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f,1.0f, 0.0f,
@@ -320,8 +313,8 @@ int main() {
             0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f
     };
 
-    //roof vao
-    unsigned int roofVBO, roofVAO;
+    //initializing roof VAO and VBO
+    unsigned int roofVAO, roofVBO;
     glGenVertexArrays(1, &roofVAO);
     glGenBuffers(1, &roofVBO);
     glBindBuffer(GL_ARRAY_BUFFER, roofVBO);
@@ -334,17 +327,15 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    // cube's VAO (and VBO)
+    // initializing VAOs and VBOs for the room
     unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6,  cubeVAOP1, cubeVAOP2, cubeVAOP3;
     glGenVertexArrays(1, &cubeVAO1);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
     glBindVertexArray(cubeVAO1);
-    // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
-    // normal attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
@@ -410,7 +401,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //pomocni zidovi
+    //initializing VAO and VBOs for auxiliary walls
     glGenVertexArrays(1, &cubeVAOP1);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -435,7 +426,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //kuhinjski
+    //initializing VAO and VBO for the kitchen half-wall
     glGenVertexArrays(1, &cubeVAOP3);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -448,7 +439,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //skybox
+    //initializing VAO and VBO for skybox
     unsigned int skyboxVAO, skyboxVBO;
     glGenVertexArrays(1, &skyboxVAO);
     glGenBuffers(1, &skyboxVBO);
@@ -458,7 +449,7 @@ int main() {
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    // platform
+    //initializing VAO and VBO for skybox
     unsigned int platformVAO, platformVBO;
     glGenVertexArrays(1, &platformVAO);
     glGenBuffers(1, &platformVBO);
@@ -499,7 +490,6 @@ int main() {
     }
 
     // loading models
-    // -----------
     Model bed("resources/objects/bed/bed.obj");
     bed.SetShaderTextureNamePrefix("material.");
 
@@ -533,16 +523,7 @@ int main() {
     Model tree("resources/objects/tree/tree2.obj");
     tree.SetShaderTextureNamePrefix("material.");
 
-//    PointLight& pointLight = programState->pointLight;
-//    pointLight.position = glm::vec3(0.5, -0.5, 0.5);
-//    pointLight.ambient = glm::vec3(2, 2, 2);
-//    pointLight.diffuse = glm::vec3(0.6, 0.6, 0.6);
-//    pointLight.specular = glm::vec3(1.0, 1.0, 1.0);
-    //nemoj da odkom jer je ovo inicijalizacija svetka za krevet -> necemo to
-//    pointLight.constant = 1.0f;
-//    pointLight.linear = 0.09f;
-//    pointLight.quadratic = 0.032f;
-
+    //moon light
     DirLight& dirLight = programState->dirLight;
     dirLight.direction = glm::vec3(1.9f, -1.4f, -2.15f);
     dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
@@ -568,9 +549,6 @@ int main() {
     lampPointLight2.linear = 1.0f;
     lampPointLight2.quadratic = 1.0f;
 
-    // draw in wireframe
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
     //shader config
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -579,38 +557,23 @@ int main() {
     ourShader.setInt("material.texture_specular1", 1);
 
     // render loop
-    // -----------
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
-        // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         // input
-        // -----
         processInput(window);
 
-
         // render
-        // ------
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // don't forget to enable shader before setting uniforms
         ourShader.use();
-//        pointLight.position = glm::vec3(0 , 1.5, 0);
-//        ourShader.setVec3("pointLight.position", pointLight.position);
-//        ourShader.setVec3("pointLight.ambient", pointLight.ambient);
-//        ourShader.setVec3("pointLight.diffuse", pointLight.diffuse);
-//        ourShader.setVec3("pointLight.specular", pointLight.specular);
-//        ourShader.setFloat("pointLight.constant", pointLight.constant);
-//        ourShader.setFloat("pointLight.linear", pointLight.linear);
-//        ourShader.setFloat("pointLight.quadratic", pointLight.quadratic);
-//        ourShader.setVec3("viewPosition", programState->camera.Position);
-//        ourShader.setFloat("material.shininess", 32.0f);
 
-        //lampPointLight1.position = glm::vec3(0.984, 0.882, -3.268);
+        //forwarding information to shaders
         ourShader.setVec3("lampPointLight1.position", lampPointLight1.position);
         ourShader.setVec3("lampPointLight1.ambient", lampPointLight1.ambient);
         ourShader.setVec3("lampPointLight1.diffuse", lampPointLight1.diffuse);
@@ -619,7 +582,6 @@ int main() {
         ourShader.setFloat("lampPointLight1.linear", lampPointLight1.linear);
         ourShader.setFloat("lampPointLight1.quadratic", lampPointLight1.quadratic);
 
-        //lampPointLight2.position = glm::vec3(-0.984, 0.882, -3.268);
         ourShader.setVec3("lampPointLight2.position", lampPointLight2.position);
         ourShader.setVec3("lampPointLight2.ambient", lampPointLight2.ambient);
         ourShader.setVec3("lampPointLight2.diffuse", lampPointLight2.diffuse);
@@ -631,23 +593,19 @@ int main() {
         ourShader.setVec3("viewPosition", programState->camera.Position);
         ourShader.setFloat("material.shininess", 32.0f);
 
-         //dirLight
-//        ourShader.setVec3("dirLight.direction", dirLight.direction);
-//        ourShader.setVec3("dirLight.ambient", dirLight.ambient);
-//        ourShader.setVec3("dirLight.diffuse", dirLight.diffuse);
-//        ourShader.setVec3("dirLight.specular", dirLight.specular);
+        //dirLight
+        //ourShader.setVec3("dirLight.direction", dirLight.direction);
+        //ourShader.setVec3("dirLight.ambient", dirLight.ambient);
+        //ourShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        //ourShader.setVec3("dirLight.specular", dirLight.specular);
         //for now
         ourShader.setVec3("dirLight.direction", 0.3f, -0.75f, -0.6f);
         ourShader.setVec3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
         ourShader.setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
         ourShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
 
-
-//        ourShader.setVec3("pointLight.ambient", glm::vec3(0));
-//        ourShader.setVec3("pointLight.diffuse", glm::vec3(0));
-//        ourShader.setVec3("pointLight.specular", glm::vec3(0));
-
         glDisable(GL_CULL_FACE);
+
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
                                                 (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
@@ -655,7 +613,7 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
 
-        // render bed model
+        // render bed
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(0.0f, 0.0f, -1.0f));
@@ -663,7 +621,7 @@ int main() {
         ourShader.setMat4("model", model);
         bed.Draw(ourShader);
 
-        //render wardrobe model
+        //render wardrobe
         model = glm::mat4(1.0f);
         model = glm::translate(model,glm::vec3(
                                3.0f, 0.0f, -2.27f));
@@ -753,33 +711,23 @@ int main() {
         glBindVertexArray(cubeVAO1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glBindVertexArray(cubeVAO2);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glBindVertexArray(cubeVAO3);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glBindVertexArray(cubeVAO4);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        model = glm::mat4(1);
-        model = glm::translate(model, glm::vec3(0, 1.5, 0));
-        model = glm::scale(model, glm::vec3(7, 3, 7));
-        ourShader.setMat4("model", model);
-
         glBindVertexArray(cubeVAO5);
         glBindTexture(GL_TEXTURE_2D, floor);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glBindVertexArray(cubeVAO6);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        //pomocni kuhinjski
+        //draw half-wall
         model = glm::mat4(1);
         model = glm::translate(model, glm::vec3(-1.51f, 1.48f, 1.76f));
         model = glm::scale(model, glm::vec3(7, 3, 3.5));
@@ -787,12 +735,11 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model);
-
         glBindVertexArray(cubeVAOP3);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        //pomocni zidovi
+        //draw auxiliary walls
         model = glm::mat4(1);
         model = glm::translate(model, glm::vec3(-0.1f, 1.5f, 0.02f));
         model = glm::scale(model, glm::vec3(7, 3, 7));
@@ -800,11 +747,9 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model);
-
         glBindVertexArray(cubeVAOP1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glBindVertexArray(cubeVAOP2);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -818,7 +763,6 @@ int main() {
         view = glm::mat4(glm::mat3(programState->camera.GetViewMatrix())); // remove translation from the view matrix
         skyboxShader.setMat4("view", view);
         skyboxShader.setMat4("projection", projection);
-        // skybox cube
         glBindVertexArray(skyboxVAO);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
@@ -826,7 +770,7 @@ int main() {
         glBindVertexArray(0);
         glDepthFunc(GL_LESS); // set depth function back to default
 
-        //platform
+        //draw platform
         glCullFace(GL_BACK);
         ourShader.use();
         projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
@@ -841,7 +785,7 @@ int main() {
         ourShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
-        //roof
+        //draw roof
         glDisable(GL_CULL_FACE);
         ourShader.use();
         model = glm::mat4(1);
@@ -855,7 +799,7 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 12);
         glEnable(GL_CULL_FACE);
 
-        //rand trees
+//        draw trees
 //        model = glm::scale(model, glm::vec3(1.0f));
 //        ourShader.setMat4("model", model);
 //        for (auto i : vegetation)
@@ -870,7 +814,6 @@ int main() {
             DrawImGui(programState);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -881,7 +824,7 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     // glfw: terminate, clearing all previously allocated GLFW resources.
-    // ------------------------------------------------------------------
+
     // de-allocation
     glDeleteVertexArrays(1, &cubeVAO1);
     glDeleteVertexArrays(1, &cubeVAO2);
@@ -904,7 +847,6 @@ int main() {
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -924,7 +866,6 @@ void processInput(GLFWwindow *window) {
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
 void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
     // make sure the viewport matches the new window dimensions; note that width and
     // height will be significantly larger than specified on retina displays.
@@ -932,7 +873,6 @@ void framebuffer_size_callback(GLFWwindow *window, int width, int height) {
 }
 
 // glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
     if (firstMouse) {
         lastX = xpos;
@@ -951,7 +891,6 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 }
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
     programState->camera.ProcessMouseScroll(yoffset);
 }
@@ -965,35 +904,31 @@ void DrawImGui(ProgramState *programState) {
         static float f = 0.0f;
         ImGui::Begin("Hello window");
         ImGui::Text("Hello text");
-        ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
+//        ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
 //        ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
 //        ImGui::DragFloat3("position", (float*)&programState->position);
 //        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.0001, 50.0);
-
-//        ImGui::DragFloat("pointLight.constant", &programState->pointLight.constant, 0.05, 0.0, 1.0);
-//        ImGui::DragFloat("pointLight.linear", &programState->pointLight.linear, 0.05, 0.0, 1.0);
-//        ImGui::DragFloat("pointLight.quadratic", &programState->pointLight.quadratic, 0.05, 0.0, 1.0);
 
 //        ImGui::DragFloat3("dirLight.direction", (float*)&programState->dirLight.direction, 0.05);
 //        ImGui::DragFloat3("dirLight.ambient", (float*)&programState->dirLight.ambient, 0.05, 0.0, 1.0);
 //        ImGui::DragFloat3("dirLight.diffuse", (float*)&programState->dirLight.diffuse, 0.05, 0.0, 1.0);
 //        ImGui::DragFloat3("dirLight.specular", (float*)&programState->dirLight.specular, 0.05, 0.0, 1.0);
 
-        ImGui::DragFloat3("lampPointLight1.position", (float*)&programState->lampPointLight1.position);
-        ImGui::DragFloat3("lampPointLight1.ambient", (float*)&programState->lampPointLight1.ambient, 0.05);
-        ImGui::DragFloat3("lampPointLight1.diffuse", (float*)&programState->lampPointLight1.diffuse, 0.05);
-        ImGui::DragFloat3("lampPointLight1.specular", (float*)&programState->lampPointLight1.specular, 0.05);
-        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight1.constant, 0.05);
-        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight1.linear, 0.05);
-        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight1.quadratic, 0.05);
-
-        ImGui::DragFloat3("lampPointLight2.position", (float*)&programState->lampPointLight2.position);
-        ImGui::DragFloat3("lampPointLight2.ambient", (float*)&programState->lampPointLight2.ambient, 0.05);
-        ImGui::DragFloat3("lampPointLight2.diffuse", (float*)&programState->lampPointLight2.diffuse, 0.05);
-        ImGui::DragFloat3("lampPointLight2.specular", (float*)&programState->lampPointLight2.specular, 0.05);
-        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight2.constant, 0.05);
-        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight2.linear, 0.05);
-        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight2.quadratic, 0.05);
+//        ImGui::DragFloat3("lampPointLight1.position", (float*)&programState->lampPointLight1.position);
+//        ImGui::DragFloat3("lampPointLight1.ambient", (float*)&programState->lampPointLight1.ambient, 0.05);
+//        ImGui::DragFloat3("lampPointLight1.diffuse", (float*)&programState->lampPointLight1.diffuse, 0.05);
+//        ImGui::DragFloat3("lampPointLight1.specular", (float*)&programState->lampPointLight1.specular, 0.05);
+//        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight1.constant, 0.05);
+//        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight1.linear, 0.05);
+//        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight1.quadratic, 0.05);
+//
+//        ImGui::DragFloat3("lampPointLight2.position", (float*)&programState->lampPointLight2.position);
+//        ImGui::DragFloat3("lampPointLight2.ambient", (float*)&programState->lampPointLight2.ambient, 0.05);
+//        ImGui::DragFloat3("lampPointLight2.diffuse", (float*)&programState->lampPointLight2.diffuse, 0.05);
+//        ImGui::DragFloat3("lampPointLight2.specular", (float*)&programState->lampPointLight2.specular, 0.05);
+//        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight2.constant, 0.05);
+//        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight2.linear, 0.05);
+//        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight2.quadratic, 0.05);
 
         ImGui::End();
     }
