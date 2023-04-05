@@ -192,6 +192,8 @@ int main() {
 
     // configure global opengl state
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // enable face culling
     glEnable(GL_CULL_FACE);
@@ -203,6 +205,7 @@ int main() {
     Shader skyboxShader("resources/shaders/skybox.vs", "resources/shaders/skybox.fs");
     Shader insideShader("resources/shaders/inside.vs", "resources/shaders/inside.fs");
     Shader outsideShader("resources/shaders/outside.vs", "resources/shaders/outside.fs");
+    Shader blendShader("resources/shaders/blend.vs", "resources/shaders/blend.fs");
 
     //initializing vertices (first three coordinates, second three normals, and two for textures)
     float vertices1[] = {
@@ -346,7 +349,7 @@ int main() {
     glEnableVertexAttribArray(2);
 
     // initializing VAOs and VBOs for the room
-    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6,  cubeVAOP1, cubeVAOP2, cubeVAOP3, windowVAO;
+    unsigned int VBO, cubeVAO1, cubeVAO2, cubeVAO3, cubeVAO4, cubeVAO5, cubeVAO6,  cubeVAOP1, cubeVAOP2, cubeVAOP3, windowVAO, window2VAO;
     glGenVertexArrays(1, &cubeVAO1);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -383,19 +386,6 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-    //window wall
-    glGenVertexArrays(1, &windowVAO);
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices4), vertices4, GL_STATIC_DRAW);
-    glBindVertexArray(windowVAO);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
     glGenVertexArrays(1, &cubeVAO5);
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -413,6 +403,31 @@ int main() {
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices6), vertices6, GL_STATIC_DRAW);
     glBindVertexArray(cubeVAO6);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    //window walls
+    glGenVertexArrays(1, &windowVAO);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices4), vertices4, GL_STATIC_DRAW);
+    glBindVertexArray(windowVAO);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(2);
+
+    glGenVertexArrays(1, &window2VAO);
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices1), vertices1, GL_STATIC_DRAW);
+    glBindVertexArray(window2VAO);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
@@ -489,7 +504,8 @@ int main() {
     unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wall/wood_plank_wall_diff_4k.jpg").c_str());
     unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/forrest_ground_01_diff_4k.jpg").c_str());
     unsigned int roof = loadTexture(FileSystem::getPath("resources/textures/roof/thatch_roof_angled_diff_4k.jpg").c_str());
-    unsigned int windowt = loadTexture(FileSystem::getPath("resources/textures/window/window.png").c_str());
+    unsigned int windows = loadTexture(FileSystem::getPath("resources/textures/window/window.png").c_str());
+    unsigned int windows2 = loadTexture(FileSystem::getPath("resources/textures/window/prozor1.png").c_str());
     vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right.jpg"),
             FileSystem::getPath("resources/textures/skybox/left.jpg"),
@@ -596,7 +612,10 @@ int main() {
     outsideShader.use();
     outsideShader.setInt("material.texture_diffuse1", 0);
     outsideShader.setInt("material.texture_specular1", 1);
-
+    blendShader.use();
+    blendShader.setInt("material.texture_diffuse1", 0);
+    blendShader.setInt("material.texture_specular1", 1);
+    blendShader.setInt("texture1", 0);
     // render loop
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -657,6 +676,40 @@ int main() {
 //        ourShader.setVec3("dirLight.ambient", 0.1f, 0.1f, 0.1f);
 //        ourShader.setVec3("dirLight.diffuse", 0.25f, 0.25f, 0.25f);
 //        ourShader.setVec3("dirLight.specular", 0.3f, 0.3f, 0.3f);
+
+        //forwarding information to blendShader
+        blendShader.use();
+        blendShader.setVec3("lampPointLight1.position", lampPointLight1.position);
+        blendShader.setVec3("lampPointLight1.ambient", lampPointLight1.ambient);
+        blendShader.setVec3("lampPointLight1.diffuse", lampPointLight1.diffuse);
+        blendShader.setVec3("lampPointLight1.specular", lampPointLight1.specular);
+        blendShader.setFloat("lampPointLight1.constant", lampPointLight1.constant);
+        blendShader.setFloat("lampPointLight1.linear", lampPointLight1.linear);
+        blendShader.setFloat("lampPointLight1.quadratic", lampPointLight1.quadratic);
+        blendShader.setVec3("lampPointLight2.position", lampPointLight2.position);
+        blendShader.setVec3("lampPointLight2.ambient", lampPointLight2.ambient);
+        blendShader.setVec3("lampPointLight2.diffuse", lampPointLight2.diffuse);
+        blendShader.setVec3("lampPointLight2.specular", lampPointLight2.specular);
+        blendShader.setFloat("lampPointLight2.constant", lampPointLight2.constant);
+        blendShader.setFloat("lampPointLight2.linear", lampPointLight2.linear);
+        blendShader.setFloat("lampPointLight2.quadratic", lampPointLight2.quadratic);
+        blendShader.setVec3("dirLight.direction", dirLight.direction);
+        blendShader.setVec3("dirLight.ambient", dirLight.ambient);
+        blendShader.setVec3("dirLight.diffuse", dirLight.diffuse);
+        blendShader.setVec3("dirLight.specular", dirLight.specular);
+        blendShader.setVec3("lampSpotLight.position", lampSpotLight.position);
+        blendShader.setVec3("lampSpotLight.direction", lampSpotLight.direction);
+        blendShader.setVec3("lampSpotLight.ambient", lampSpotLight.ambient);
+        blendShader.setVec3("lampSpotLight.diffuse", lampSpotLight.diffuse);
+        blendShader.setVec3("lampSpotLight.specular", lampSpotLight.specular);
+        blendShader.setFloat("lampSpotLight.constant", lampSpotLight.constant);
+        blendShader.setFloat("lampSpotLight.linear", lampSpotLight.linear);
+        blendShader.setFloat("lampSpotLight.quadratic", lampSpotLight.quadratic);
+        blendShader.setFloat("lampSpotLight.cutOff", glm::cos(glm::radians(lampSpotLight.cutOff)));
+        blendShader.setFloat("lampSpotLight.outerCutOff", glm::cos(glm::radians(lampSpotLight.outerCutOff)));
+        blendShader.setVec3("viewPosition", programState->camera.Position);
+        blendShader.setFloat("material.shininess", 32.0f);
+
 
         //forwarding information to insideShaders
         insideShader.use();
@@ -761,6 +814,7 @@ int main() {
         door.Draw(insideShader);
 
         //render frame
+        insideShader.use();
         model = glm::mat4(1.0f);
         model = glm::translate(model,
                                glm::vec3(-3.68f, 1.2f, -1.8f));
@@ -811,21 +865,12 @@ int main() {
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model);
-        glBindVertexArray(cubeVAO1);
-        glBindTexture(GL_TEXTURE_2D, wall);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(cubeVAO2);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(cubeVAO3);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-
-        //draw window wall
-        glBindVertexArray(windowVAO);
-        glBindTexture(GL_TEXTURE_2D, windowt);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
-
         glBindVertexArray(cubeVAO5);
         glBindTexture(GL_TEXTURE_2D, floor);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -915,6 +960,27 @@ int main() {
 //            outsideShader.setMat4("model", model);
 //            tree.Draw(outsideShader);
 //        }
+
+
+        //draw window wall
+        glDisable(GL_CULL_FACE);
+        model = glm::mat4(1);
+        model = glm::translate(model, glm::vec3(0, 1.5, 0));
+        model = glm::scale(model, glm::vec3(7, 3, 7));
+        blendShader.setMat4("model", model);
+        blendShader.use();
+        blendShader.setMat4("projection", projection);
+        blendShader.setMat4("view", view);
+        blendShader.setMat4("model", model);
+//        glBindVertexArray(windowVAO);
+//        glBindTexture(GL_TEXTURE_2D, windows);
+//        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(window2VAO);
+        glBindTexture(GL_TEXTURE_2D, windows2);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(windowVAO);
+        glBindTexture(GL_TEXTURE_2D, windows);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         if (programState->ImGuiEnabled)
             DrawImGui(programState);
@@ -1015,19 +1081,19 @@ void DrawImGui(ProgramState *programState) {
 //        ImGui::DragFloat3("position", (float*)&programState->position);
 //        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.0001, 50.0);
 
-//        ImGui::DragFloat3("dirLight.direction", (float*)&programState->dirLight.direction, 0.05);
-//        ImGui::DragFloat3("dirLight.ambient", (float*)&programState->dirLight.ambient, 0.05, 0.0, 1.0);
-//        ImGui::DragFloat3("dirLight.diffuse", (float*)&programState->dirLight.diffuse, 0.05, 0.0, 1.0);
-//        ImGui::DragFloat3("dirLight.specular", (float*)&programState->dirLight.specular, 0.05, 0.0, 1.0);
+        ImGui::DragFloat3("dirLight.direction", (float*)&programState->dirLight.direction, 0.05);
+        ImGui::DragFloat3("dirLight.ambient", (float*)&programState->dirLight.ambient, 0.05, 0.0, 1.0);
+        ImGui::DragFloat3("dirLight.diffuse", (float*)&programState->dirLight.diffuse, 0.05, 0.0, 1.0);
+        ImGui::DragFloat3("dirLight.specular", (float*)&programState->dirLight.specular, 0.05, 0.0, 1.0);
 
-//        ImGui::DragFloat3("lampPointLight1.position", (float*)&programState->lampPointLight1.position);
-//        ImGui::DragFloat3("lampPointLight1.ambient", (float*)&programState->lampPointLight1.ambient, 0.05);
-//        ImGui::DragFloat3("lampPointLight1.diffuse", (float*)&programState->lampPointLight1.diffuse, 0.05);
-//        ImGui::DragFloat3("lampPointLight1.specular", (float*)&programState->lampPointLight1.specular, 0.05);
-//        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight1.constant, 0.05);
-//        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight1.linear, 0.05);
-//        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight1.quadratic, 0.05);
-//
+        ImGui::DragFloat3("lampPointLight1.position", (float*)&programState->lampPointLight1.position);
+        ImGui::DragFloat3("lampPointLight1.ambient", (float*)&programState->lampPointLight1.ambient, 0.05);
+        ImGui::DragFloat3("lampPointLight1.diffuse", (float*)&programState->lampPointLight1.diffuse, 0.05);
+        ImGui::DragFloat3("lampPointLight1.specular", (float*)&programState->lampPointLight1.specular, 0.05);
+        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight1.constant, 0.05);
+        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight1.linear, 0.05);
+        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight1.quadratic, 0.05);
+
 //        ImGui::DragFloat3("lampPointLight2.position", (float*)&programState->lampPointLight2.position);
 //        ImGui::DragFloat3("lampPointLight2.ambient", (float*)&programState->lampPointLight2.ambient, 0.05);
 //        ImGui::DragFloat3("lampPointLight2.diffuse", (float*)&programState->lampPointLight2.diffuse, 0.05);
