@@ -517,13 +517,39 @@ int main() {
     unsigned int cubemapTexture = loadCubemap(faces);
 
     //random generating positions for trees
-    vector<glm::vec3> vegetation;
-    for (int i = 0; i < 10; i++) {
-        int rand_x = rand() % 40;
-        int rand_z = rand() % 35;
+    vector<glm::vec3> trees;
+    for (int i = 0; i < 20; i++) {
+        int rand_x = rand() % 50 - 25;
+        int rand_z = rand() % 15 + 4;
+
         glm::vec3 pos = glm::vec3(rand_x, 0.0f, rand_z);
-        vegetation.push_back(pos);
+        trees.push_back(pos);
     }
+
+    for (int i = 0; i < 20; i++) {
+        int rand_x = rand() % 50 - 25;
+        int rand_z = rand() % 21 - 25;
+
+        glm::vec3 pos = glm::vec3(rand_x, 0.0f, rand_z);
+        trees.push_back(pos);
+    }
+
+    for (int i = 0; i < 20; i++) {
+        int rand_x = rand() % 21 + 4;
+        int rand_z = rand() % 50 - 25;
+
+        glm::vec3 pos = glm::vec3(rand_x, 0.0f, rand_z);
+        trees.push_back(pos);
+    }
+
+    for (int i = 0; i < 20; i++) {
+        int rand_x = rand() % 21 - 25;
+        int rand_z = rand() % 50 - 26;
+
+        glm::vec3 pos = glm::vec3(rand_x, 0.0f, rand_z);
+        trees.push_back(pos);
+    }
+
 
     // loading models
     Model bed("resources/objects/bed/bed.obj");
@@ -559,7 +585,7 @@ int main() {
     Model lamp3("resources/objects/lamp/Asta LG1.obj");
     lamp3.SetShaderTextureNamePrefix("material.");
 
-    Model tree("resources/objects/tree/tree2.obj");
+    Model tree("resources/objects/tree/tree.obj");
     tree.SetShaderTextureNamePrefix("material.");
 
     //moon light
@@ -928,7 +954,7 @@ int main() {
         view = programState->camera.GetViewMatrix();
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, -0.001f, 0.0f));
-        model = glm::scale(model, glm::vec3(50.0f, 1.0f, 50.0f));
+        model = glm::scale(model, glm::vec3(25.0f, 1.0f, 25.0f));
         outsideShader.setMat4("projection", projection);
         outsideShader.setMat4("view", view);
         glBindVertexArray(platformVAO);
@@ -948,22 +974,29 @@ int main() {
         glBindVertexArray(roofVAO);
         glBindTexture(GL_TEXTURE_2D, roof);
         glDrawArrays(GL_TRIANGLES, 0, 12);
-        glEnable(GL_CULL_FACE);
+
 
         //draw trees
 //        model = glm::scale(model, glm::vec3(1.0f));
 //        outsideShader.setMat4("model", model);
-//        for (auto i : vegetation)
-//        {
-//            model = glm::mat4(1.0f);
-//            model = glm::translate(model, i);
+        for (auto i : trees)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::scale(model, glm::vec3(1.0f));
+            model = glm::translate(model, i);
+            outsideShader.setMat4("model", model);
+            tree.Draw(outsideShader);
+        }
+
+
+//        model = glm::mat4(1.0f);
+//            model = glm::scale(model, glm::vec3(1.0f));
+//            model = glm::translate(model,glm::vec3 (7,0,7));
 //            outsideShader.setMat4("model", model);
 //            tree.Draw(outsideShader);
-//        }
-
 
         //draw window wall
-        glDisable(GL_CULL_FACE);
+
         model = glm::mat4(1);
         model = glm::translate(model, glm::vec3(0, 1.5, 0));
         model = glm::scale(model, glm::vec3(7, 3, 7));
