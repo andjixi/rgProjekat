@@ -300,9 +300,9 @@ int main() {
             1.0f, -1.0f,  1.0f
     };
     float platformVertices[] = {
-            1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+            1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 50.0f, 0.0f,
             -1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 50.00f,
 
             1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,1.0f, 0.0f,
             -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,0.0f, 1.0f,
@@ -502,7 +502,7 @@ int main() {
     //loading textures
     unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/floor/laminate_floor_02_diff_4k.jpg").c_str());
     unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wall/wood_plank_wall_diff_4k.jpg").c_str());
-    unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/forrest_ground_01_diff_4k.jpg").c_str());
+    unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/aerial_grass_rock_diff_4k.jpg").c_str());
     unsigned int roof = loadTexture(FileSystem::getPath("resources/textures/roof/thatch_roof_angled_diff_4k.jpg").c_str());
     unsigned int windows = loadTexture(FileSystem::getPath("resources/textures/window/window.png").c_str());
     unsigned int windows2 = loadTexture(FileSystem::getPath("resources/textures/window/prozor1.png").c_str());
@@ -977,23 +977,14 @@ int main() {
 
 
         //draw trees
-//        model = glm::scale(model, glm::vec3(1.0f));
-//        outsideShader.setMat4("model", model);
-        for (auto i : trees)
-        {
-            model = glm::mat4(1.0f);
-            model = glm::scale(model, glm::vec3(1.0f));
-            model = glm::translate(model, i);
-            outsideShader.setMat4("model", model);
-            tree.Draw(outsideShader);
-        }
-
-
-//        model = glm::mat4(1.0f);
+//        for (auto i : trees)
+//        {
+//            model = glm::mat4(1.0f);
 //            model = glm::scale(model, glm::vec3(1.0f));
-//            model = glm::translate(model,glm::vec3 (7,0,7));
+//            model = glm::translate(model, i);
 //            outsideShader.setMat4("model", model);
 //            tree.Draw(outsideShader);
+//        }
 
         //draw window wall
 
@@ -1005,9 +996,6 @@ int main() {
         blendShader.setMat4("projection", projection);
         blendShader.setMat4("view", view);
         blendShader.setMat4("model", model);
-//        glBindVertexArray(windowVAO);
-//        glBindTexture(GL_TEXTURE_2D, windows);
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(window2VAO);
         glBindTexture(GL_TEXTURE_2D, windows2);
         glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1119,13 +1107,13 @@ void DrawImGui(ProgramState *programState) {
         ImGui::DragFloat3("dirLight.diffuse", (float*)&programState->dirLight.diffuse, 0.05, 0.0, 1.0);
         ImGui::DragFloat3("dirLight.specular", (float*)&programState->dirLight.specular, 0.05, 0.0, 1.0);
 
-        ImGui::DragFloat3("lampPointLight1.position", (float*)&programState->lampPointLight1.position);
-        ImGui::DragFloat3("lampPointLight1.ambient", (float*)&programState->lampPointLight1.ambient, 0.05);
-        ImGui::DragFloat3("lampPointLight1.diffuse", (float*)&programState->lampPointLight1.diffuse, 0.05);
-        ImGui::DragFloat3("lampPointLight1.specular", (float*)&programState->lampPointLight1.specular, 0.05);
-        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight1.constant, 0.05);
-        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight1.linear, 0.05);
-        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight1.quadratic, 0.05);
+//        ImGui::DragFloat3("lampPointLight1.position", (float*)&programState->lampPointLight1.position);
+//        ImGui::DragFloat3("lampPointLight1.ambient", (float*)&programState->lampPointLight1.ambient, 0.05);
+//        ImGui::DragFloat3("lampPointLight1.diffuse", (float*)&programState->lampPointLight1.diffuse, 0.05);
+//        ImGui::DragFloat3("lampPointLight1.specular", (float*)&programState->lampPointLight1.specular, 0.05);
+//        ImGui::DragFloat("pointLight.constant", &programState->lampPointLight1.constant, 0.05);
+//        ImGui::DragFloat("pointLight.linear", &programState->lampPointLight1.linear, 0.05);
+//        ImGui::DragFloat("pointLight.quadratic", &programState->lampPointLight1.quadratic, 0.05);
 
 //        ImGui::DragFloat3("lampPointLight2.position", (float*)&programState->lampPointLight2.position);
 //        ImGui::DragFloat3("lampPointLight2.ambient", (float*)&programState->lampPointLight2.ambient, 0.05);
