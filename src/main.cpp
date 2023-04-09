@@ -302,36 +302,36 @@ int main() {
     float platformVertices[] = {
             1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 50.0f, 0.0f,
             -1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 50.00f,
+            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 50.0f,
 
-            1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,1.0f, 0.0f,
-            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,0.0f, 1.0f,
-            1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,1.0f, 1.0f
+            1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,50.0f, 0.0f,
+            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,0.0f, 50.0f,
+            1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,50.0f, 50.0f
     };
     float roofVertices[] = {
             -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, 0.0f, 0.0f, -1.0f, 0.5f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 25.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f, 0.0f, -1.0f, 12.5f, 25.0f,
 
             -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.5f, 1.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 25.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 12.5f, 25.0f,
 
-            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f,0.0f, 25.0f,
             -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.5f, 1.0f,
+            0.0f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 12.5f, 25.0f,
 
-            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 25.0f,
             0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f, 1.0f,
+            0.0f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 12.5f, 25.0f,
 
-            0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-            0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.5f, 1.0f,
+            0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 25.0f, 25.0f,
+            0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 25.0f, 0.0f,
+            0.0f, 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 12.5f, 25.0f,
 
             -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f, 1.0f
+            -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 25.0f,
+            0.0f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 12.5f, 25.0f
     };
 
     //initializing roof VAO and VBO
@@ -502,10 +502,12 @@ int main() {
     //loading textures
     unsigned int floor = loadTexture(FileSystem::getPath("resources/textures/floor/laminate_floor_02_diff_4k.jpg").c_str());
     unsigned int wall = loadTexture(FileSystem::getPath("resources/textures/wall/wood_plank_wall_diff_4k.jpg").c_str());
-    unsigned int grass = loadTexture(FileSystem::getPath("resources/textures/grass/aerial_grass_rock_diff_4k.jpg").c_str());
+    unsigned int grassDiff = loadTexture(FileSystem::getPath("resources/textures/grass/forrest_ground_01_diff_4k.jpg").c_str());
     unsigned int roof = loadTexture(FileSystem::getPath("resources/textures/roof/thatch_roof_angled_diff_4k.jpg").c_str());
     unsigned int windows = loadTexture(FileSystem::getPath("resources/textures/window/window.png").c_str());
     unsigned int windows2 = loadTexture(FileSystem::getPath("resources/textures/window/prozor1.png").c_str());
+    unsigned int grassSpec = loadTexture(FileSystem::getPath("resources/textures/grass/forrest_ground_01_spec_4k.jpg").c_str());
+
     vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right.jpg"),
             FileSystem::getPath("resources/textures/skybox/left.jpg"),
@@ -625,7 +627,6 @@ int main() {
     lampSpotLight.quadratic = 1.0f;
     lampSpotLight.cutOff = 70.0f;
     lampSpotLight.outerCutOff = 110.0f;
-
     //shader config
     skyboxShader.use();
     skyboxShader.setInt("skybox", 0);
@@ -892,15 +893,27 @@ int main() {
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model);
         glBindVertexArray(cubeVAO2);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(cubeVAO3);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(cubeVAO5);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, floor);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, floor);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(cubeVAO6);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -913,6 +926,9 @@ int main() {
         insideShader.setMat4("view", view);
         insideShader.setMat4("model", model);
         glBindVertexArray(cubeVAOP3);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -925,9 +941,15 @@ int main() {
         ourShader.setMat4("view", view);
         ourShader.setMat4("model", model);
         glBindVertexArray(cubeVAOP1);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(cubeVAOP2);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, wall);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -958,7 +980,10 @@ int main() {
         outsideShader.setMat4("projection", projection);
         outsideShader.setMat4("view", view);
         glBindVertexArray(platformVAO);
-        glBindTexture(GL_TEXTURE_2D, grass);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, grassDiff);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, grassSpec);
         outsideShader.setMat4("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
@@ -972,6 +997,9 @@ int main() {
         outsideShader.setMat4("view", view);
         outsideShader.setMat4("model", model);
         glBindVertexArray(roofVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, roof);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, roof);
         glDrawArrays(GL_TRIANGLES, 0, 12);
 
@@ -997,9 +1025,15 @@ int main() {
         blendShader.setMat4("view", view);
         blendShader.setMat4("model", model);
         glBindVertexArray(window2VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, windows2);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, windows2);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(windowVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, windows);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, windows);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
