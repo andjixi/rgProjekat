@@ -57,21 +57,22 @@ void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 unsigned int loadTexture(char const * path);
 unsigned int loadCubemap(vector<std::string> faces);
+void renderWindows(Shader& blendShader, unsigned int& windows, unsigned int& windows2);
 void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN);
-void renderWindows(Shader& blendShader, unsigned int& windows, unsigned int& windows2);
+               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD);
 void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                  PointLight& lampPointLight1,  PointLight& lampPointLight2, SpotLight& lampSpotLight, DirLight& dirLight,
                  Model& bed, Model& wardrobe, Model& kitchen, Model& rug, Model& tableSet, Model& door, Model& frame, Model& vase,
                  Model& lamp, Model& lamp2, Model& lamp3, Model& tree,
                  unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& windows, unsigned int& windows2,
+                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD, unsigned int& windows, unsigned int& windows2,
                  vector<glm::vec3>& trees);
 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
+float heightScale = -8.0;
 
 // camera
 float lastX = SCR_WIDTH / 2.0f;
@@ -231,6 +232,7 @@ int main() {
     unsigned int windows2 = loadTexture(FileSystem::getPath("resources/textures/window/prozor1.png").c_str());
     unsigned int path = loadTexture(FileSystem::getPath("resources/textures/path/concrete_rock_path_diff_4k.jpg").c_str());
     unsigned int pathN = loadTexture(FileSystem::getPath("resources/textures/path/concrete_rock_path_nor_gl_4k.jpg").c_str());
+    unsigned int pathD = loadTexture(FileSystem::getPath("resources/textures/path/concrete_rock_path_disp_4k.png").c_str());
 
     vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right.jpg"),
@@ -315,7 +317,7 @@ int main() {
 
     //moon light
     DirLight& dirLight = programState->dirLight;
-    dirLight.direction = glm::vec3(1.9f, -1.4f, -2.15f);
+    dirLight.direction = glm::vec3(7.9f, -1.4f, -2.15f);
     dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
     dirLight.diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
@@ -369,7 +371,7 @@ int main() {
     normalShader.use();
     normalShader.setInt("diffuseMap", 0);
     normalShader.setInt("normalMap", 1);
-
+    normalShader.setInt("depthMap", 2);
     glm::vec3 lightPos(13.5f, 0.001f, 2.5f);
 
     // render loop
@@ -397,12 +399,13 @@ int main() {
         normalShader.setMat4("model", model);
         normalShader.setVec3("viewPos", programState->camera.Position);
         normalShader.setVec3("lightPos", dirLight.direction);
+        normalShader.setFloat("heightScale", heightScale);
         renderScene(ourShader, skyboxShader, insideShader, outsideShader, blendShader, normalShader,
                     lampPointLight1,  lampPointLight2,lampSpotLight, dirLight,
                     bed, wardrobe, kitchen, rug, tableSet, door, frame, vase,
                     lamp, lamp2, lamp3, tree,
                     wall, floor, grassDiff, grassSpec, roof,
-                    cubemapTexture, path, pathN, windows, windows2,
+                    cubemapTexture, path, pathN, pathD,windows, windows2,
                     trees);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -416,28 +419,6 @@ int main() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
     // glfw: terminate, clearing all previously allocated GLFW resources.
-
-    // de-allocation
-//    glDeleteVertexArrays(1, &cubeVAO1);
-//    glDeleteVertexArrays(1, &cubeVAO2);
-//    glDeleteVertexArrays(1, &cubeVAO3);
-//    glDeleteVertexArrays(1, &cubeVAO5);
-//    glDeleteVertexArrays(1, &cubeVAO6);
-//    glDeleteVertexArrays(1, &cubeVAOP1);
-//    glDeleteVertexArrays(1, &cubeVAOP2);
-//    glDeleteVertexArrays(1, &cubeVAOP3);
-//    glDeleteVertexArrays(1, &windowVAO);
-//    glDeleteVertexArrays(1, &window2VAO);
-//    glDeleteVertexArrays(1, &roofVAO);
-//    glDeleteVertexArrays(1, &skyboxVAO);
-//    glDeleteVertexArrays(1, &roofVAO);
-//    glDeleteVertexArrays(1, &platformVAO);
-//    glDeleteVertexArrays(1, &pathVAO);
-//
-//    glDeleteBuffers(1, &VBO);
-//    glDeleteBuffers(1, &roofVBO);
-//    glDeleteBuffers(1, &platformVBO);
-//    glDeleteBuffers(1, &pathVBO);
 
     glfwTerminate();
     return 0;
@@ -460,6 +441,14 @@ void processInput(GLFWwindow *window) {
         programState->camera.ProcessKeyboard(UP, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
         programState->camera.ProcessKeyboard(DOWN, deltaTime);
+
+    else if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+    {
+        if (heightScale < 0.0f)
+            heightScale += 0.05f;
+        else
+            heightScale = 0.0f;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -638,7 +627,7 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
                  Model& bed, Model& wardrobe, Model& kitchen, Model& rug, Model& tableSet, Model& door, Model& frame, Model& vase,
                  Model& lamp, Model& lamp2, Model& lamp3, Model& tree,
                  unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& windows, unsigned int& windows2,
+                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD, unsigned int& windows, unsigned int& windows2,
                  vector<glm::vec3>& trees)
                  {
     // don't forget to enable shader before setting uniforms
@@ -719,7 +708,6 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
     blendShader.setFloat("lampSpotLight.outerCutOff", glm::cos(glm::radians(lampSpotLight.outerCutOff)));
     blendShader.setVec3("viewPosition", programState->camera.Position);
     blendShader.setFloat("material.shininess", 32.0f);
-
 
     //forwarding information to insideShaders
     insideShader.use();
@@ -865,7 +853,7 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
     lamp3.Draw(insideShader);
 
     renderAll(ourShader, skyboxShader, insideShader, outsideShader, blendShader, normalShader,
-              wall, floor, grassDiff, grassSpec, roof, cubemapTexture, path, pathN);
+              wall, floor, grassDiff, grassSpec, roof, cubemapTexture, path, pathN, pathD);
 
     //draw trees
 //    for (auto i : trees)
@@ -885,7 +873,7 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
 
 void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN
+               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD
                ){
 
     //initializing vertices (first three coordinates, second three normals, and two for textures)
@@ -1216,18 +1204,6 @@ void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Sh
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
-//    glGenVertexArrays(1, &pathVAO);
-//    glGenBuffers(1, &pathVBO);
-//    glBindVertexArray(pathVAO);
-//    glBindBuffer(GL_ARRAY_BUFFER, pathVBO);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(pathVertices), &pathVertices, GL_STATIC_DRAW);
-//    glEnableVertexAttribArray(0);
-//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-//    glEnableVertexAttribArray(1);
-//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-//    glEnableVertexAttribArray(2);
-//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
     glGenVertexArrays(1, &pathVAO);
     glGenBuffers(1, &pathVBO);
     glBindVertexArray(pathVAO);
@@ -1384,6 +1360,8 @@ void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Sh
     glBindTexture(GL_TEXTURE_2D, path);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, pathN);
+    glActiveTexture(GL_TEXTURE2);
+    glBindTexture(GL_TEXTURE_2D, pathD);
     glDrawArrays(GL_TRIANGLES, 0, 6);
     model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
     normalShader.setMat4("model", model);
