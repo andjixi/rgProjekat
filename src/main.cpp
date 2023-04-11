@@ -57,16 +57,16 @@ void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
 unsigned int loadTexture(char const * path);
 unsigned int loadCubemap(vector<std::string> faces);
-void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader,
+void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-               unsigned int& cubemapTexture, unsigned int& path);
+               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN);
 void renderWindows(Shader& blendShader, unsigned int& windows, unsigned int& windows2);
-void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader,
+void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                  PointLight& lampPointLight1,  PointLight& lampPointLight2, SpotLight& lampSpotLight, DirLight& dirLight,
                  Model& bed, Model& wardrobe, Model& kitchen, Model& rug, Model& tableSet, Model& door, Model& frame, Model& vase,
                  Model& lamp, Model& lamp2, Model& lamp3, Model& tree,
                  unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& windows, unsigned int& windows2,
+                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& windows, unsigned int& windows2,
                  vector<glm::vec3>& trees);
 
 // settings
@@ -217,6 +217,7 @@ int main() {
     Shader insideShader("resources/shaders/inside.vs", "resources/shaders/inside.fs");
     Shader outsideShader("resources/shaders/outside.vs", "resources/shaders/outside.fs");
     Shader blendShader("resources/shaders/blend.vs", "resources/shaders/blend.fs");
+    Shader normalShader("resources/shaders/normal.vs", "resources/shaders/normal.fs");
 
     stbi_set_flip_vertically_on_load(false);
 
@@ -229,6 +230,7 @@ int main() {
     unsigned int windows = loadTexture(FileSystem::getPath("resources/textures/window/window.png").c_str());
     unsigned int windows2 = loadTexture(FileSystem::getPath("resources/textures/window/prozor1.png").c_str());
     unsigned int path = loadTexture(FileSystem::getPath("resources/textures/path/concrete_rock_path_diff_4k.jpg").c_str());
+    unsigned int pathN = loadTexture(FileSystem::getPath("resources/textures/path/concrete_rock_path_nor_gl_4k.jpg").c_str());
 
     vector<std::string> faces {
             FileSystem::getPath("resources/textures/skybox/right.jpg"),
@@ -239,8 +241,6 @@ int main() {
             FileSystem::getPath("resources/textures/skybox/back.jpg")
     };
     unsigned int cubemapTexture = loadCubemap(faces);
-
-
 
     //random generating positions for trees
     vector<glm::vec3> trees;
@@ -366,6 +366,12 @@ int main() {
     blendShader.setInt("material.texture_diffuse1", 0);
     blendShader.setInt("material.texture_specular1", 1);
     blendShader.setInt("texture1", 0);
+    normalShader.use();
+    normalShader.setInt("diffuseMap", 0);
+    normalShader.setInt("normalMap", 1);
+
+    glm::vec3 lightPos(13.5f, 0.001f, 2.5f);
+
     // render loop
     while (!glfwWindowShouldClose(window)) {
         // per-frame time logic
@@ -379,13 +385,24 @@ int main() {
         // render
         glClearColor(programState->clearColor.r, programState->clearColor.g, programState->clearColor.b, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        renderScene(ourShader, skyboxShader, insideShader, outsideShader, blendShader,
+        // configure view/projection matrices
+        glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+        glm::mat4 view = programState->camera.GetViewMatrix();
+        normalShader.use();
+        normalShader.setMat4("projection", projection);
+        normalShader.setMat4("view", view);
+        // render normal-mapped quad
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::rotate(model, glm::radians((float)glfwGetTime() * -10.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0))); // rotate the quad to show normal mapping from multiple directions
+        normalShader.setMat4("model", model);
+        normalShader.setVec3("viewPos", programState->camera.Position);
+        normalShader.setVec3("lightPos", dirLight.direction);
+        renderScene(ourShader, skyboxShader, insideShader, outsideShader, blendShader, normalShader,
                     lampPointLight1,  lampPointLight2,lampSpotLight, dirLight,
                     bed, wardrobe, kitchen, rug, tableSet, door, frame, vase,
                     lamp, lamp2, lamp3, tree,
                     wall, floor, grassDiff, grassSpec, roof,
-                    cubemapTexture, path, windows, windows2,
+                    cubemapTexture, path, pathN, windows, windows2,
                     trees);
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
@@ -486,8 +503,8 @@ void DrawImGui(ProgramState *programState) {
         ImGui::Text("Hello text");
 //        ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
 //        ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-//        ImGui::DragFloat3("position", (float*)&programState->position);
-//        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.0001, 50.0);
+        ImGui::DragFloat3("position", (float*)&programState->position);
+        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.0001, 50.0);
 
         ImGui::DragFloat3("dirLight.direction", (float*)&programState->dirLight.direction, 0.05);
         ImGui::DragFloat3("dirLight.ambient", (float*)&programState->dirLight.ambient, 0.05, 0.0, 1.0);
@@ -616,12 +633,12 @@ unsigned int loadCubemap(vector<std::string> faces)
     return textureID;
 }
 
-void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader,
+void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                  PointLight& lampPointLight1,  PointLight& lampPointLight2, SpotLight& lampSpotLight, DirLight& dirLight,
                  Model& bed, Model& wardrobe, Model& kitchen, Model& rug, Model& tableSet, Model& door, Model& frame, Model& vase,
                  Model& lamp, Model& lamp2, Model& lamp3, Model& tree,
                  unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& windows, unsigned int& windows2,
+                 unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& windows, unsigned int& windows2,
                  vector<glm::vec3>& trees)
                  {
     // don't forget to enable shader before setting uniforms
@@ -847,18 +864,18 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
     insideShader.setMat4("model", model);
     lamp3.Draw(insideShader);
 
-    renderAll(ourShader, skyboxShader, insideShader, outsideShader, blendShader,
-              wall, floor, grassDiff, grassSpec, roof, cubemapTexture, path);
+    renderAll(ourShader, skyboxShader, insideShader, outsideShader, blendShader, normalShader,
+              wall, floor, grassDiff, grassSpec, roof, cubemapTexture, path, pathN);
 
     //draw trees
-    for (auto i : trees)
-    {
-        model = glm::mat4(1.0f);
-        model = glm::scale(model, glm::vec3(1.0f));
-        model = glm::translate(model, i);
-        outsideShader.setMat4("model", model);
-        tree.Draw(outsideShader);
-    }
+//    for (auto i : trees)
+//    {
+//        model = glm::mat4(1.0f);
+//        model = glm::scale(model, glm::vec3(1.0f));
+//        model = glm::translate(model, i);
+//        outsideShader.setMat4("model", model);
+//        tree.Draw(outsideShader);
+//    }
 
     renderWindows(blendShader, windows, windows2);
 
@@ -866,10 +883,10 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
         DrawImGui(programState);
 }
 
-void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader,
+void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-               unsigned int& cubemapTexture, unsigned int& path
-               ) {
+               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN
+               ){
 
     //initializing vertices (first three coordinates, second three normals, and two for textures)
     float vertices1[] = {
@@ -972,15 +989,69 @@ void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Sh
             -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,0.0f, 50.0f,
             1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,50.0f, 50.0f
     };
-    float pathVertices[] = {
-            1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 0.5f, 0.0f,
-            -1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f, 0.0f, 0.5f,
 
-            1.0f, 0.0f,  1.0f,  0.0f, 1.0f, 0.0f,0.5f, 0.0f,
-            -1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,0.0f, 0.5f,
-            1.0f, 0.0f, -1.0f,  0.0f, 1.0f, 0.0f,0.5f, 0.5f
+    // positions
+    glm::vec3 pos1(1.0f, 0.0f,  1.0f);
+    glm::vec3 pos2(-1.0f, 0.0f,  1.0f);
+    glm::vec3 pos3(-1.0f, 0.0f, -1.0f);
+    glm::vec3 pos4( 1.0f, 0.0f, -1.0f);
+    // texture coordinates
+    glm::vec2 uv1(1.0f, 0.0f);
+    glm::vec2 uv2(0.0f, 0.0f);
+    glm::vec2 uv3(0.0f, 1.0f);
+    glm::vec2 uv4(1.0f, 1.0f);
+    // normal vector
+    glm::vec3 nm(0.0f, 1.0f, 0.0f);
+
+    // calculate tangent/bitangent vectors of both triangles
+    glm::vec3 tangent1, bitangent1;
+    glm::vec3 tangent2, bitangent2;
+    // triangle 1
+    // ----------
+    glm::vec3 edge1 = pos2 - pos1;
+    glm::vec3 edge2 = pos3 - pos1;
+    glm::vec2 deltaUV1 = uv2 - uv1;
+    glm::vec2 deltaUV2 = uv3 - uv1;
+
+    float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+    bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+    // triangle 2
+    // ----------
+    edge1 = pos3 - pos1;
+    edge2 = pos4 - pos1;
+    deltaUV1 = uv3 - uv1;
+    deltaUV2 = uv4 - uv1;
+
+    f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+    tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+    tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+    tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+
+    bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+    bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+    bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+
+    float pathVertices[] = {
+            pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+            pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+            pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+
+            pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+            pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+            pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
     };
+
     float roofVertices[] = {
             -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
             0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 25.0f, 0.0f,
@@ -1145,18 +1216,33 @@ void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Sh
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
+//    glGenVertexArrays(1, &pathVAO);
+//    glGenBuffers(1, &pathVBO);
+//    glBindVertexArray(pathVAO);
+//    glBindBuffer(GL_ARRAY_BUFFER, pathVBO);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(pathVertices), &pathVertices, GL_STATIC_DRAW);
+//    glEnableVertexAttribArray(0);
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+//    glEnableVertexAttribArray(1);
+//    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+//    glEnableVertexAttribArray(2);
+//    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
     glGenVertexArrays(1, &pathVAO);
     glGenBuffers(1, &pathVBO);
     glBindVertexArray(pathVAO);
     glBindBuffer(GL_ARRAY_BUFFER, pathVBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(pathVertices), &pathVertices, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
 
     //room scaling
     glm::mat4 projection = glm::perspective(glm::radians(programState->camera.Zoom),
@@ -1286,19 +1372,55 @@ void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Sh
     glDrawArrays(GL_TRIANGLES, 0, 12);
 
     //draw path
+    normalShader.use();
     model = glm::mat4(1);
-    model = glm::translate(model, glm::vec3(13.5f, 0.001f, 2.5f));
-    model = glm::scale(model, glm::vec3(10.0f, 1.0f, 0.5f));
-    outsideShader.setMat4("projection", projection);
-    outsideShader.setMat4("view", view);
-    outsideShader.setMat4("model", model);
+    model = glm::translate(model, glm::vec3(4.0f, 0.001f, 2.5f));
+    model = glm::scale(model, glm::vec3(0.5f));
+    normalShader.setMat4("projection", projection);
+    normalShader.setMat4("view", view);
+    normalShader.setMat4("model", model);
     glBindVertexArray(pathVAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, path);
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, path);
+    glBindTexture(GL_TEXTURE_2D, pathN);
     glDrawArrays(GL_TRIANGLES, 0, 6);
-
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    model = glm::translate(model, glm::vec3(2.0f, 0.001f, 0.0f));
+    normalShader.setMat4("model", model);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
 void renderWindows(Shader& blendShader, unsigned int& windows, unsigned int& windows2) {
