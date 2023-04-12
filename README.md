@@ -7,35 +7,35 @@ Made with C++ using OpenGL, GLFW and GLAD.
 
 What is implemented:
 
-Shaders ✅
-Textures ✅
-Colors ✅
-Transformations ✅
-Coordinate systems ✅
-Imgui ✅
-
-Camera ✅
-Assimp ✅
-Mesh ✅
-
-Models ✅
-Model and lighting ✅
-Face culling ✅
-Lighting maps ✅
-Materials ✅
-Blending ✅
-
-Basic lighting ✅
-Light casters ✅
-Multiple lights ✅
-Advanced lighting ✅
-
-From group A:
-Cubemaps ✅
-
-From group B:
-Normal mapping, Parallax Mapping ✅
-
+Shaders ✅ \
+Textures ✅\
+Colors ✅\
+Transformations ✅\
+Coordinate systems ✅\
+Imgui ✅\
+\
+Camera ✅\
+Assimp ✅\
+Mesh ✅\
+\
+Models ✅\
+Model and lighting ✅\
+Face culling ✅\
+Lighting maps ✅\
+Materials ✅\
+Blending ✅\
+\
+Basic lighting ✅\
+Light casters ✅\
+Multiple lights ✅\
+Advanced lighting ✅\
+\
+From group A:\
+Cubemaps ✅\
+\
+From group B:\
+Normal mapping, Parallax Mapping ✅\
+\
 ##Controls
 `W`  - Move camera forward \
 `S`  - Move camera backward \
