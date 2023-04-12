@@ -60,7 +60,7 @@ unsigned int loadCubemap(vector<std::string> faces);
 void renderWindows(Shader& blendShader, unsigned int& windows, unsigned int& windows2);
 void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD);
+               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD, Model& tree, vector<glm::vec3> trees);
 void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                  PointLight& lampPointLight1,  PointLight& lampPointLight2, SpotLight& lampSpotLight, DirLight& dirLight,
                  Model& bed, Model& wardrobe, Model& kitchen, Model& rug, Model& tableSet, Model& door, Model& frame, Model& vase,
@@ -72,7 +72,7 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
-float heightScale = -8.0;
+float heightScale = -10.0;
 
 // camera
 float lastX = SCR_WIDTH / 2.0f;
@@ -165,7 +165,7 @@ int main() {
 #endif
 
     // glfw window creation
-    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "cabin", NULL, NULL);
+    GLFWwindow *window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Cabin in forest", NULL, NULL);
     if (window == NULL) {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -317,9 +317,9 @@ int main() {
 
     //moon light
     DirLight& dirLight = programState->dirLight;
-    dirLight.direction = glm::vec3(7.9f, -1.4f, -2.15f);
-    dirLight.ambient = glm::vec3(0.05f, 0.05f, 0.05f);
-    dirLight.diffuse = glm::vec3(0.1f, 0.1f, 0.1f);
+    dirLight.direction = glm::vec3(-3.75f, 3.35f, -30.95f);
+    dirLight.ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    dirLight.diffuse = glm::vec3(0.6f, 0.6f, 0.6f);
     dirLight.specular = glm::vec3(0.5f, 0.5f, 0.5f);
 
     //table lamps lights
@@ -445,7 +445,7 @@ void processInput(GLFWwindow *window) {
     else if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
     {
         if (heightScale < 0.0f)
-            heightScale += 0.05f;
+            heightScale += 0.5f;
         else
             heightScale = 0.0f;
     }
@@ -489,12 +489,12 @@ void DrawImGui(ProgramState *programState) {
     {
         static float f = 0.0f;
         ImGui::Begin("Hello window");
-        ImGui::Text("Hello text");
+//        ImGui::Text("Hello text");
 //        ImGui::SliderFloat("Float slider", &f, 0.0, 1.0);
 //        ImGui::ColorEdit3("Background color", (float *) &programState->clearColor);
-        ImGui::DragFloat3("position", (float*)&programState->position);
-        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.0001, 50.0);
-
+//        ImGui::DragFloat3("position", (float*)&programState->position);
+//        ImGui::DragFloat("scale", &programState->scale, 0.05, 0.0001, 50.0);
+//
         ImGui::DragFloat3("dirLight.direction", (float*)&programState->dirLight.direction, 0.05);
         ImGui::DragFloat3("dirLight.ambient", (float*)&programState->dirLight.ambient, 0.05, 0.0, 1.0);
         ImGui::DragFloat3("dirLight.diffuse", (float*)&programState->dirLight.diffuse, 0.05, 0.0, 1.0);
@@ -853,17 +853,7 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
     lamp3.Draw(insideShader);
 
     renderAll(ourShader, skyboxShader, insideShader, outsideShader, blendShader, normalShader,
-              wall, floor, grassDiff, grassSpec, roof, cubemapTexture, path, pathN, pathD);
-
-    //draw trees
-//    for (auto i : trees)
-//    {
-//        model = glm::mat4(1.0f);
-//        model = glm::scale(model, glm::vec3(1.0f));
-//        model = glm::translate(model, i);
-//        outsideShader.setMat4("model", model);
-//        tree.Draw(outsideShader);
-//    }
+              wall, floor, grassDiff, grassSpec, roof, cubemapTexture, path, pathN, pathD, tree, trees);
 
     renderWindows(blendShader, windows, windows2);
 
@@ -873,7 +863,7 @@ void renderScene(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, 
 
 void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Shader &outsideShader, Shader &blendShader, Shader &normalShader,
                unsigned int& wall, unsigned int& floor, unsigned int& grassDiff, unsigned int& grassSpec, unsigned int& roof,
-               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD
+               unsigned int& cubemapTexture, unsigned int& path, unsigned int& pathN, unsigned int& pathD, Model &tree ,vector<glm::vec3> trees
                ){
 
     //initializing vertices (first three coordinates, second three normals, and two for textures)
@@ -1346,6 +1336,16 @@ void renderAll(Shader &ourShader, Shader &skyboxShader, Shader &insideShader, Sh
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, roof);
     glDrawArrays(GL_TRIANGLES, 0, 12);
+
+    //draw trees
+    for (auto i : trees)
+    {
+        model = glm::mat4(1.0f);
+        model = glm::scale(model, glm::vec3(1.0f));
+        model = glm::translate(model, i);
+        outsideShader.setMat4("model", model);
+        tree.Draw(outsideShader);
+    }
 
     //draw path
     normalShader.use();
