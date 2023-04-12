@@ -34,9 +34,10 @@ From group A:\
 Cubemaps ✅\
 \
 From group B:\
-Normal mapping, Parallax Mapping ✅\
-\
-##Controls
+Normal mapping, Parallax Mapping ✅
+
+## Controls
+
 `W`  - Move camera forward \
 `S`  - Move camera backward \
 `A`  - Move camera left \
@@ -44,6 +45,6 @@ Normal mapping, Parallax Mapping ✅\
 `SPACE`  - Move camera up \
 `LCONTROL`  - Move camera down \
 `MOUSE`  - Look around \
-`SCROLL`  - Zoom \
+`SCROLL`  - Zoom 
 
 `H`  - Hold to make path appear
