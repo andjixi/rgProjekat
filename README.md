@@ -1,7 +1,9 @@
 # rgProjekat
  Project - Computer graphics 
-
-Hidden in a forest lies a beautiful cottage, waiting to be occupied. The moonlight shimmers as you walk the path that appers the closer you get. Inside you are greated by the beautifl wooden furniture, cozy atmosfere and flowers as a welcome gift. 
+ 
+ Hidden in a forest lies a beautiful cottage, waiting to be occupied. The moonlight shimmers as you walk the path that appers the closer you get. Inside you are greated by the beautifl wooden furniture, cozy atmosfere and flowers as a welcome gift. 
+ 
+ [Video preview](https://youtu.be/uDJE9k-T1Ww)
 
 Made with C++ using OpenGL, GLFW and GLAD.
 
